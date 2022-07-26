@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32602.291
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiGateways", "ApiGateways", "{9B096052-ECD0-46A0-B502-BEBEEDDBDC40}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildingBlocks", "BuildingBlocks", "{55E51D7D-D3CA-4811-A3C6-8BA9CBB85BBD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{FB0F583B-1DC1-478B-8B04-F0D71FAAD317}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "User", "User", "{B62C62C2-12D5-4E5C-90A0-455E4F4DE733}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.API", "Services\User\User.API\User.API.csproj", "{EB893988-47E3-494F-9DA1-75D72863CA46}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tweet", "Tweet", "{46AB4EF7-AEC3-4062-B839-ABD8319F60B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tweet.API", "Services\Tweet\Tweet.API\Tweet.API.csproj", "{2C1353A3-6171-4F78-921F-6D8E29F64739}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EB893988-47E3-494F-9DA1-75D72863CA46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB893988-47E3-494F-9DA1-75D72863CA46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB893988-47E3-494F-9DA1-75D72863CA46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB893988-47E3-494F-9DA1-75D72863CA46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C1353A3-6171-4F78-921F-6D8E29F64739}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C1353A3-6171-4F78-921F-6D8E29F64739}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C1353A3-6171-4F78-921F-6D8E29F64739}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C1353A3-6171-4F78-921F-6D8E29F64739}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B62C62C2-12D5-4E5C-90A0-455E4F4DE733} = {FB0F583B-1DC1-478B-8B04-F0D71FAAD317}
+		{EB893988-47E3-494F-9DA1-75D72863CA46} = {B62C62C2-12D5-4E5C-90A0-455E4F4DE733}
+		{46AB4EF7-AEC3-4062-B839-ABD8319F60B3} = {FB0F583B-1DC1-478B-8B04-F0D71FAAD317}
+		{2C1353A3-6171-4F78-921F-6D8E29F64739} = {46AB4EF7-AEC3-4062-B839-ABD8319F60B3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DA94CE40-9B1C-4676-A8F6-5334C510790A}
+	EndGlobalSection
+EndGlobal
