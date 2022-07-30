@@ -1,18 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Tweet.API.Models
+﻿namespace Tweet.API.Models
 {
+    using System.ComponentModel.DataAnnotations;
+
+    /// <summary>
+    /// Defines the <see cref="Like" />.
+    /// </summary>
     public class Like
     {
+        /// <summary>
+        /// Gets or sets the Id.
+        /// </summary>
         [Key]
         public int Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the TweetId.
+        /// </summary>
         [Required]
         public int TweetId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the UserName.
+        /// </summary>
         [Required]
         public string UserName { get; set; }
     }

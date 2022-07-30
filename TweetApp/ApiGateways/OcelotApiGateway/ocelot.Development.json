@@ -1,0 +1,305 @@
+{
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:5050"
+  },
+  "ReRoutes": [
+    //user api
+    { //get all users
+      "DownstreamPathTemplate": "/api/v1.0/users/all",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/users/all",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //get user detail by username
+      "DownstreamPathTemplate": "/api/v1.0/users/get/{username}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/user/get/{username}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //search user by username
+      "DownstreamPathTemplate": "/api/v1.0/users/search/{username}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/user/search/{username}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //login user
+      "DownstreamPathTemplate": "/api/v1.0/users/login",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/login",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    { //logout user
+      "DownstreamPathTemplate": "/api/v1.0/users/logout",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/logout",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //register a new user
+      "DownstreamPathTemplate": "/api/v1.0/users/register",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/register",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    { //update user by username
+      "DownstreamPathTemplate": "/api/v1.0/users/update/{username}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/user/update/{username}",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //forgot password
+      "DownstreamPathTemplate": "/api/v1.0/users/{username}/forgotpassword",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/forgotpassword",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //reset password
+      "DownstreamPathTemplate": "/api/v1.0/users/{username}/resetpassword",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/resetpassword",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    //tweet apis
+    { //get all tweets
+      "DownstreamPathTemplate": "/api/v1.0/tweets/all",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/all",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //get all tweets by username
+      "DownstreamPathTemplate": "/api/v1.0/tweets/{username}/all",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/all",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //add a new tweet
+      "DownstreamPathTemplate": "/api/v1.0/tweets/{username}/add",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/add",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //update a tweet by tweet id
+      "DownstreamPathTemplate": "/api/v1.0/tweets/{username}/update/{tweetId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/update/{tweetId}",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //delete a tweet by id
+      "DownstreamPathTemplate": "/api/v1.0/tweets/{username}/delete/{tweetId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/delete/{tweetId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //get a tweet count
+      "DownstreamPathTemplate": "/api/v1.0/tweets/likes/count/{tweetId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/likes/count/{tweetId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //like a tweet
+      "DownstreamPathTemplate": "/api/v1.0/tweets/{username}/like/{tweetId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/like/{tweetId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //unlike a tweet
+      "DownstreamPathTemplate": "/api/v1.0/tweets/{username}/unlike/{tweetId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/unlike/{tweetId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //add a comment to a tweet by tweet id
+      "DownstreamPathTemplate": "/api/v1.0/tweets/{username}/reply/{tweetId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/reply/{tweetId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //get all comments of a tweet
+      "DownstreamPathTemplate": "/api/v1.0/tweets/{tweetId}/reply/all",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{tweetId}/reply/all",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    }
+  ]
+}

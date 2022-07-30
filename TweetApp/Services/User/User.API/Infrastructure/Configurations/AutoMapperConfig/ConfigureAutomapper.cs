@@ -1,15 +1,17 @@
-﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using User.API.Models;
-using User.API.Models.Dtos;
-
-namespace UserService.API.Infrastructure.Configuration.AutoMapperConfig
+﻿namespace UserService.API.Infrastructure.Configuration.AutoMapperConfig
 {
-    public class ConfigureAutomapper: Profile
+    using AutoMapper;
+    using User.API.Models;
+    using User.API.Models.Dtos;
+
+    /// <summary>
+    /// Class for configuring the AutoMapper
+    /// </summary>
+    public class ConfigureAutomapper : Profile
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConfigureAutomapper"/> class.
+        /// </summary>
         public ConfigureAutomapper()
         {
             CreateMap<UserProfile, CreateUserProfileDto>().ReverseMap();

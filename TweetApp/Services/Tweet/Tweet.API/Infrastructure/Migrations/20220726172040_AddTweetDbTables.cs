@@ -1,10 +1,17 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
-
-namespace Tweet.API.Infrastructure.Migrations
+﻿namespace Tweet.API.Infrastructure.Migrations
 {
+    using Microsoft.EntityFrameworkCore.Migrations;
+    using System;
+
+    /// <summary>
+    /// Defines the <see cref="AddTweetDbTables" />.
+    /// </summary>
     public partial class AddTweetDbTables : Migration
     {
+        /// <summary>
+        /// The Up.
+        /// </summary>
+        /// <param name="migrationBuilder">The migrationBuilder<see cref="MigrationBuilder"/>.</param>
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -53,6 +60,10 @@ namespace Tweet.API.Infrastructure.Migrations
                 });
         }
 
+        /// <summary>
+        /// The Down.
+        /// </summary>
+        /// <param name="migrationBuilder">The migrationBuilder<see cref="MigrationBuilder"/>.</param>
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

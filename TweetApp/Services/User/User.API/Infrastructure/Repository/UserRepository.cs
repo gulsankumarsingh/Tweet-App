@@ -1,27 +1,45 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using User.API.Infrastructure.DataContext;
-using User.API.Models;
-using User.API.Infrastructure.Repository.Interface;
-
-namespace User.API.Infrastructure.Repository
+﻿namespace User.API.Infrastructure.Repository
 {
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using User.API.Infrastructure.DataContext;
+    using User.API.Infrastructure.Repository.Interface;
+    using User.API.Models;
+
+    /// <summary>
+    /// Defines the User repository.
+    /// </summary>
     public class UserRepository : IUserRepository
     {
+        /// <summary>
+        /// Defines the _dbContext.
+        /// </summary>
         private readonly UserDbContext _dbContext;
+
+        /// <summary>
+        /// Defines the _logger.
+        /// </summary>
         private readonly ILogger<UserRepository> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserRepository"/> class.
+        /// </summary>
+        /// <param name="dbContext">The dbContext<see cref="UserDbContext"/>.</param>
+        /// <param name="logger">The logger<see cref="ILogger{UserRepository}"/>.</param>
         public UserRepository(UserDbContext dbContext, ILogger<UserRepository> logger)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        #region Users
+        /// <summary>
+        /// Method for Get All Users
+        /// </summary>
+        /// <returns>The list of user profiles.</returns>
         public async Task<List<UserProfile>> GetAllUsersAsync()
         {
             List<UserProfile> userList = null;
@@ -35,6 +53,12 @@ namespace User.API.Infrastructure.Repository
             }
             return userList;
         }
+
+        /// <summary>
+        /// Method for Get User By Email
+        /// </summary>
+        /// <param name="email">The email<see cref="string"/>.</param>
+        /// <returns>The user profile </returns>
         public async Task<UserProfile> GetUserByEmailAsync(string email)
         {
             UserProfile user = null;
@@ -48,6 +72,12 @@ namespace User.API.Infrastructure.Repository
             }
             return user;
         }
+
+        /// <summary>
+        /// Method for Get User By User Name Async.
+        /// </summary>
+        /// <param name="userName">The userName<see cref="string"/>.</param>
+        /// <returns>The user profile</returns>
         public async Task<UserProfile> GetUserByUserNameAsync(string userName)
         {
             UserProfile user = null;
@@ -61,6 +91,12 @@ namespace User.API.Infrastructure.Repository
             }
             return user;
         }
+
+        /// <summary>
+        /// Method for Search User By User Name.
+        /// </summary>
+        /// <param name="userName">The userName<see cref="string"/>.</param>
+        /// <returns>The list of user profiles</returns>
         public async Task<List<UserProfile>> SearchUserAsync(string userName)
         {
             List<UserProfile> user = null;
@@ -74,6 +110,11 @@ namespace User.API.Infrastructure.Repository
             }
             return user;
         }
+
+        /// <summary>
+        /// Method to get Active Users
+        /// </summary>
+        /// <returns>The list of user profiles</returns>
         public async Task<List<UserProfile>> GetActiveUsersAsync()
         {
             List<UserProfile> userList = null;
@@ -87,6 +128,12 @@ namespace User.API.Infrastructure.Repository
             }
             return userList;
         }
+
+        /// <summary>
+        /// Method for Check if User Exist
+        /// </summary>
+        /// <param name="email">The email<see cref="string"/>.</param>
+        /// <returns>The true if user exist else false.</returns>
         public async Task<bool> IsUserExistAsync(string email)
         {
             bool isUserExist = false;
@@ -100,6 +147,12 @@ namespace User.API.Infrastructure.Repository
             }
             return isUserExist;
         }
+
+        /// <summary>
+        /// Method for Check if User Name Exist
+        /// </summary>
+        /// <param name="userName">The userName<see cref="string"/>.</param>
+        /// <returns>The true if user exist else false.</returns>
         public async Task<bool> IsUserNameExistAsync(string userName)
         {
             bool isUserExist = false;
@@ -113,6 +166,13 @@ namespace User.API.Infrastructure.Repository
             }
             return isUserExist;
         }
+
+        /// <summary>
+        /// Method for Verify User Info
+        /// </summary>
+        /// <param name="userName">The userName<see cref="string"/>.</param>
+        /// <param name="password">The password<see cref="string"/>.</param>
+        /// <returns>The user profile</returns>
         public async Task<UserProfile> VerifyUserAsync(string userName, string password)
         {
             UserProfile user = null;
@@ -126,6 +186,12 @@ namespace User.API.Infrastructure.Repository
             }
             return user;
         }
+
+        /// <summary>
+        /// Method for adding new user
+        /// </summary>
+        /// <param name="user">The user<see cref="UserProfile"/>.</param>
+        /// <returns>true if user added successful else false.</returns>
         public async Task<bool> AddUserAsync(UserProfile user)
         {
             bool isUserAdded = false;
@@ -133,7 +199,6 @@ namespace User.API.Infrastructure.Repository
             {
                 await _dbContext.UserProfiles.AddAsync(user);
                 isUserAdded = await SaveChangesAsync();
-                _logger.LogInformation("User added successfully.");
             }
             catch (Exception ex)
             {
@@ -141,6 +206,12 @@ namespace User.API.Infrastructure.Repository
             }
             return isUserAdded;
         }
+
+        /// <summary>
+        /// Method for Update User Information.
+        /// </summary>
+        /// <param name="user">The user<see cref="UserProfile"/>.</param>
+        /// <returns>true if user udpated successful else false.</returns>
         public async Task<bool> UpdateUsersAsync(UserProfile user)
         {
             bool isUpadateSuccess = false;
@@ -148,8 +219,6 @@ namespace User.API.Infrastructure.Repository
             {
                 _dbContext.UserProfiles.Update(user);
                 isUpadateSuccess = await SaveChangesAsync();
-                _logger.LogInformation("User updated successfully.");
-
             }
             catch (Exception ex)
             {
@@ -157,6 +226,52 @@ namespace User.API.Infrastructure.Repository
             }
             return isUpadateSuccess;
         }
+
+        /// <summary>
+        /// Method for Delete User Information.
+        /// </summary>
+        /// <param name="user">The user<see cref="UserProfile"/>.</param>
+        /// <returns>true if user delete successful else false.</returns>
+        public async Task<bool> DeleteUsersAsync(UserProfile user)
+        {
+            bool isDeleteSuccess = false;
+            try
+            {
+                _dbContext.UserProfiles.Remove(user);
+                isDeleteSuccess = await SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, "An error occured while removing user!");
+            }
+            return isDeleteSuccess;
+        }
+
+        /// <summary>
+        /// Method for Change Password
+        /// </summary>
+        /// <param name="user">The user<see cref="UserProfile"/>.</param>
+        /// <returns>true if password udpated successful else false.</returns>
+        public async Task<bool> ChangePasswordAsync(UserProfile user)
+        {
+            bool isUpadateSuccess = false;
+            try
+            {
+                _dbContext.UserProfiles.Attach(user);
+                _dbContext.Entry(user).Property(x => x.Password).IsModified = true;
+                isUpadateSuccess = await SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, "An error occured while updating user!");
+            }
+            return isUpadateSuccess;
+        }
+
+        /// <summary>
+        /// Method for Save Changes to database
+        /// </summary>
+        /// <returns>true if records saved else false.</returns>
         public async Task<bool> SaveChangesAsync()
         {
             bool isRecordSaved = false;
@@ -170,7 +285,5 @@ namespace User.API.Infrastructure.Repository
             }
             return isRecordSaved;
         }
-
-        #endregion
     }
 }

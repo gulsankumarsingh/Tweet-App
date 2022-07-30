@@ -1,0 +1,973 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>User.API</name>
+    </assembly>
+    <members>
+        <member name="T:UserService.API.Controllers.UsersController">
+            <summary>
+            Defines the <see cref="T:UserService.API.Controllers.UsersController" />.
+            </summary>
+        </member>
+        <member name="F:UserService.API.Controllers.UsersController._userRepository">
+            <summary>
+            Defines the _userRepository.
+            </summary>
+        </member>
+        <member name="F:UserService.API.Controllers.UsersController._jwtAuthentication">
+            <summary>
+            Defines the _jwtAuthentication.
+            </summary>
+        </member>
+        <member name="F:UserService.API.Controllers.UsersController._logger">
+            <summary>
+            Defines the _logger.
+            </summary>
+        </member>
+        <member name="F:UserService.API.Controllers.UsersController._messageSender">
+            <summary>
+            Defines the _messageSender.
+            </summary>
+        </member>
+        <member name="F:UserService.API.Controllers.UsersController._mapper">
+            <summary>
+            Defines the _mapper.
+            </summary>
+        </member>
+        <member name="M:UserService.API.Controllers.UsersController.#ctor(User.API.Infrastructure.Repository.Interface.IUserRepository,Microsoft.Extensions.Logging.ILogger{UserService.API.Controllers.UsersController},AutoMapper.IMapper,User.API.Infrastructure.Services.AuthenticationService.Interfaces.IJwtAuthentication,User.API.Infrastructure.Services.MessageSenderService.Interface.IMessageSender)">
+            <summary>
+            Initializes a new instance of the <see cref="T:UserService.API.Controllers.UsersController"/> class.
+            </summary>
+            <param name="userRepository">The userRepository</param>
+            <param name="logger">The logger</param>
+            <param name="mapper">The mapper</param>
+            <param name="jwtAuthentication">The jwtAuthentication.</param>
+            <param name="messageSender">The messageSender.</param>
+        </member>
+        <member name="M:UserService.API.Controllers.UsersController.GetAllUsers">
+            <summary>
+            Method for the get All Users information.
+            </summary>
+            <returns>The ApiResponse with status and message/>.</returns>
+        </member>
+        <member name="M:UserService.API.Controllers.UsersController.GetUserAsync(System.String)">
+            <summary>
+            Method for Get the User info.
+            </summary>
+            <param name="username">The username</param>
+            <returns>The ApiResponse with status and message/>.</returns>
+        </member>
+        <member name="M:UserService.API.Controllers.UsersController.SearchByUserNameAsync(System.String)">
+            <summary>
+            Method for searching the user by username
+            </summary>
+            <param name="username">The username</param>
+            <returns>The ApiResponse with status and message/>.</returns>
+        </member>
+        <member name="M:UserService.API.Controllers.UsersController.LoginAsync(User.API.Models.UserLoginModel)">
+            <summary>
+            Method for login the user
+            </summary>
+            <param name="user">The user login model</param>
+            <returns>The ApiResponse with status and message/>.</returns>
+        </member>
+        <member name="M:UserService.API.Controllers.UsersController.LogoutAsync(System.String)">
+            <summary>
+            Method for logout the user
+            </summary>
+            <param name="username">The username</param>
+            <returns>The ApiResponse with status and message/>.</returns>
+        </member>
+        <member name="M:UserService.API.Controllers.UsersController.RegisterAsync(User.API.Models.Dtos.CreateUserProfileDto)">
+            <summary>
+            The Register a new user
+            </summary>
+            <param name="createUserProfileDto">The model for create a new user data</param>
+            <returns>The ApiResponse with status and message/>.</returns>
+        </member>
+        <member name="M:UserService.API.Controllers.UsersController.UpdateProfileAsync(System.String,User.API.Models.Dtos.UpdateUserProfileDto)">
+            <summary>
+            Method for updating the user information
+            </summary>
+            <param name="username">The username</param>
+            <param name="updateUserProfileDto">The model for update user info data</param>
+            <returns>The ApiResponse with status and message/>.</returns>
+        </member>
+        <member name="M:UserService.API.Controllers.UsersController.DeleteProfileAsync(System.String)">
+            <summary>
+            Method for updating the user information
+            </summary>
+            <param name="username">The username</param>
+            <returns>The ApiResponse with status and message/>.</returns>
+        </member>
+        <member name="M:UserService.API.Controllers.UsersController.ForgotPasswordAsync(System.String,User.API.Models.Dtos.ChangePasswordDto)">
+            <summary>
+            Method for reset password using forgot password functionality
+            </summary>
+            <param name="username">The username</param>
+            <param name="changePassword">The model with change password essentials.</param>
+            <returns>The ApiResponse with status and message/>.</returns>
+        </member>
+        <member name="M:UserService.API.Controllers.UsersController.ResetPasswordAsync(System.String,System.String)">
+            <summary>
+            The ResetPasswordAsync.
+            </summary>
+            <param name="username">username</param>
+            <param name="password">password</param>
+            <returns>The ApiResponse with status and message/>.</returns>
+        </member>
+        <member name="T:UserService.API.Infrastructure.Configuration.AutoMapperConfig.ConfigureAutomapper">
+            <summary>
+            Class for configuring the AutoMapper
+            </summary>
+        </member>
+        <member name="M:UserService.API.Infrastructure.Configuration.AutoMapperConfig.ConfigureAutomapper.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:UserService.API.Infrastructure.Configuration.AutoMapperConfig.ConfigureAutomapper"/> class.
+            </summary>
+        </member>
+        <member name="T:UserService.API.Infrastructure.Configuration.SwaggerConfig.ConfigureSwaggerOptions">
+            <summary>
+            Class for Configuration of Swagger
+            </summary>
+        </member>
+        <member name="M:UserService.API.Infrastructure.Configuration.SwaggerConfig.ConfigureSwaggerOptions.#ctor(Microsoft.AspNetCore.Mvc.ApiExplorer.IApiVersionDescriptionProvider)">
+            <summary>
+            constructor
+            </summary>
+            <param name="provider"></param>
+        </member>
+        <member name="M:UserService.API.Infrastructure.Configuration.SwaggerConfig.ConfigureSwaggerOptions.Configure(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)">
+            <summary>
+            Method for Configuring swagger options
+            </summary>
+            <param name="options">Swagger options parameter</param>
+        </member>
+        <member name="T:User.API.Infrastructure.ActionResults.InternalServerErrorObjectResult">
+            <summary>
+            Defines the <see cref="T:User.API.Infrastructure.ActionResults.InternalServerErrorObjectResult" />.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.ActionResults.InternalServerErrorObjectResult.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:User.API.Infrastructure.ActionResults.InternalServerErrorObjectResult"/> class.
+            </summary>
+            <param name="error">The error</param>
+        </member>
+        <member name="T:User.API.Infrastructure.Configurations.RabitMqConfig.RabbitMqConfiguration">
+            <summary>
+            Rabbit Mq Configuration
+            </summary>
+        </member>
+        <member name="P:User.API.Infrastructure.Configurations.RabitMqConfig.RabbitMqConfiguration.Hostname">
+            <summary>
+            Gets or sets the Hostname.
+            </summary>
+        </member>
+        <member name="P:User.API.Infrastructure.Configurations.RabitMqConfig.RabbitMqConfiguration.QueueName">
+            <summary>
+            Gets or sets the QueueName.
+            </summary>
+        </member>
+        <member name="P:User.API.Infrastructure.Configurations.RabitMqConfig.RabbitMqConfiguration.UserName">
+            <summary>
+            Gets or sets the UserName.
+            </summary>
+        </member>
+        <member name="P:User.API.Infrastructure.Configurations.RabitMqConfig.RabbitMqConfiguration.Password">
+            <summary>
+            Gets or sets the Password.
+            </summary>
+        </member>
+        <member name="T:User.API.Infrastructure.DataContext.UserDbContext">
+            <summary>
+            Defines the <see cref="T:User.API.Infrastructure.DataContext.UserDbContext" />.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.DataContext.UserDbContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions)">
+            <summary>
+            Initializes a new instance of the <see cref="T:User.API.Infrastructure.DataContext.UserDbContext"/> class.
+            </summary>
+            <param name="options">The options<see cref="T:Microsoft.EntityFrameworkCore.DbContextOptions"/>.</param>
+        </member>
+        <member name="P:User.API.Infrastructure.DataContext.UserDbContext.UserProfiles">
+            <summary>
+            Gets or sets the UserProfiles.
+            </summary>
+        </member>
+        <member name="T:User.API.Infrastructure.Filters.HttpGlobalExceptionFilter">
+            <summary>
+            Class for handling Exception
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Filters.HttpGlobalExceptionFilter._environment">
+            <summary>
+            Defines the _environment.
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Filters.HttpGlobalExceptionFilter._logger">
+            <summary>
+            Defines the _logger.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.Filters.HttpGlobalExceptionFilter.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.Extensions.Logging.ILogger{User.API.Infrastructure.Filters.HttpGlobalExceptionFilter})">
+            <summary>
+            Initializes a new instance of the <see cref="T:User.API.Infrastructure.Filters.HttpGlobalExceptionFilter"/> class.
+            </summary>
+            <param name="environment">The environment<see cref="T:Microsoft.AspNetCore.Hosting.IWebHostEnvironment"/>.</param>
+            <param name="logger">The logger<see cref="T:Microsoft.Extensions.Logging.ILogger`1"/>.</param>
+        </member>
+        <member name="M:User.API.Infrastructure.Filters.HttpGlobalExceptionFilter.OnException(Microsoft.AspNetCore.Mvc.Filters.ExceptionContext)">
+            <summary>
+            The OnException.
+            </summary>
+            <param name="context">The context<see cref="T:Microsoft.AspNetCore.Mvc.Filters.ExceptionContext"/>.</param>
+        </member>
+        <member name="T:User.API.Infrastructure.Filters.JsonErrorResponse">
+            <summary>
+            Class for Json Error Response
+            </summary>
+        </member>
+        <member name="P:User.API.Infrastructure.Filters.JsonErrorResponse.Messages">
+            <summary>
+            Gets or sets the Messages.
+            </summary>
+        </member>
+        <member name="P:User.API.Infrastructure.Filters.JsonErrorResponse.DeveloperMessage">
+            <summary>
+            Gets or sets the DeveloperMessage.
+            </summary>
+        </member>
+        <member name="T:User.API.Infrastructure.Migrations.AddUserProfileTbl">
+            <summary>
+            Defines the <see cref="T:User.API.Infrastructure.Migrations.AddUserProfileTbl" />.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.Migrations.AddUserProfileTbl.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <summary>
+            The Up.
+            </summary>
+            <param name="migrationBuilder">The migrationBuilder<see cref="T:Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder"/>.</param>
+        </member>
+        <member name="M:User.API.Infrastructure.Migrations.AddUserProfileTbl.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <summary>
+            The Down.
+            </summary>
+            <param name="migrationBuilder">The migrationBuilder<see cref="T:Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder"/>.</param>
+        </member>
+        <member name="T:User.API.Infrastructure.Migrations.UserDbContextModelSnapshot">
+            <summary>
+            Defines the <see cref="T:User.API.Infrastructure.Migrations.UserDbContextModelSnapshot" />.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.Migrations.UserDbContextModelSnapshot.BuildModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            The BuildModel.
+            </summary>
+            <param name="modelBuilder">The modelBuilder<see cref="T:Microsoft.EntityFrameworkCore.ModelBuilder"/>.</param>
+        </member>
+        <member name="T:User.API.Infrastructure.Repository.Interface.IUserRepository">
+            <summary>
+            Defines the <see cref="T:User.API.Infrastructure.Repository.Interface.IUserRepository" />.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.GetAllUsersAsync">
+            <summary>
+            The GetAllUsersAsync.
+            </summary>
+            <returns>The list of user profiles.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.GetUserByEmailAsync(System.String)">
+            <summary>
+            The GetUserByEmailAsync.
+            </summary>
+            <param name="email">The email<see cref="T:System.String"/>.</param>
+            <returns>The user profile </returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.GetUserByUserNameAsync(System.String)">
+            <summary>
+            The GetUserByUserNameAsync.
+            </summary>
+            <param name="userName">The userName<see cref="T:System.String"/>.</param>
+            <returns>The user profile</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.SearchUserAsync(System.String)">
+            <summary>
+            The SearchUserAsync.
+            </summary>
+            <param name="userName">The userName<see cref="T:System.String"/>.</param>
+            <returns>The list of user profiles</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.IsUserExistAsync(System.String)">
+            <summary>
+            The IsUserExistAsync.
+            </summary>
+            <param name="email">The email<see cref="T:System.String"/>.</param>
+            <returns>The true if user exist else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.IsUserNameExistAsync(System.String)">
+            <summary>
+            The IsUserNameExistAsync.
+            </summary>
+            <param name="userName">The userName<see cref="T:System.String"/>.</param>
+            <returns>true if user exist else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.AddUserAsync(User.API.Models.UserProfile)">
+            <summary>
+            The AddUserAsync.
+            </summary>
+            <param name="user">The user<see cref="T:User.API.Models.UserProfile"/>.</param>
+            <returns>true if user added successful else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.UpdateUsersAsync(User.API.Models.UserProfile)">
+            <summary>
+            The UpdateUsersAsync.
+            </summary>
+            <param name="user">The user<see cref="T:User.API.Models.UserProfile"/>.</param>
+            <returns>true if user udpated successful else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.DeleteUsersAsync(User.API.Models.UserProfile)">
+            <summary>
+            The DeleteUsersAsync.
+            </summary>
+            <param name="user">The user<see cref="T:User.API.Models.UserProfile"/>.</param>
+            <returns>true if user delete successful else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.ChangePasswordAsync(User.API.Models.UserProfile)">
+            <summary>
+            The ChangePasswordAsync.
+            </summary>
+            <param name="user">The user<see cref="T:User.API.Models.UserProfile"/>.</param>
+            <returns>true if password udpated successful else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.GetActiveUsersAsync">
+            <summary>
+            The GetActiveUsersAsync.
+            </summary>
+            <returns>The list of active users</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.VerifyUserAsync(System.String,System.String)">
+            <summary>
+            The VerifyUserAsync.
+            </summary>
+            <param name="userName">The userName<see cref="T:System.String"/>.</param>
+            <param name="password">The password<see cref="T:System.String"/>.</param>
+            <returns>The user profile</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.SaveChangesAsync">
+            <summary>
+            The SaveChangesAsync.
+            </summary>
+            <returns>true if records saved else false.</returns>
+        </member>
+        <member name="T:User.API.Infrastructure.Repository.UserRepository">
+            <summary>
+            Defines the User repository.
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Repository.UserRepository._dbContext">
+            <summary>
+            Defines the _dbContext.
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Repository.UserRepository._logger">
+            <summary>
+            Defines the _logger.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.#ctor(User.API.Infrastructure.DataContext.UserDbContext,Microsoft.Extensions.Logging.ILogger{User.API.Infrastructure.Repository.UserRepository})">
+            <summary>
+            Initializes a new instance of the <see cref="T:User.API.Infrastructure.Repository.UserRepository"/> class.
+            </summary>
+            <param name="dbContext">The dbContext<see cref="T:User.API.Infrastructure.DataContext.UserDbContext"/>.</param>
+            <param name="logger">The logger<see cref="T:Microsoft.Extensions.Logging.ILogger`1"/>.</param>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.GetAllUsersAsync">
+            <summary>
+            Method for Get All Users
+            </summary>
+            <returns>The list of user profiles.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.GetUserByEmailAsync(System.String)">
+            <summary>
+            Method for Get User By Email
+            </summary>
+            <param name="email">The email<see cref="T:System.String"/>.</param>
+            <returns>The user profile </returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.GetUserByUserNameAsync(System.String)">
+            <summary>
+            Method for Get User By User Name Async.
+            </summary>
+            <param name="userName">The userName<see cref="T:System.String"/>.</param>
+            <returns>The user profile</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.SearchUserAsync(System.String)">
+            <summary>
+            Method for Search User By User Name.
+            </summary>
+            <param name="userName">The userName<see cref="T:System.String"/>.</param>
+            <returns>The list of user profiles</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.GetActiveUsersAsync">
+            <summary>
+            Method to get Active Users
+            </summary>
+            <returns>The list of user profiles</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.IsUserExistAsync(System.String)">
+            <summary>
+            Method for Check if User Exist
+            </summary>
+            <param name="email">The email<see cref="T:System.String"/>.</param>
+            <returns>The true if user exist else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.IsUserNameExistAsync(System.String)">
+            <summary>
+            Method for Check if User Name Exist
+            </summary>
+            <param name="userName">The userName<see cref="T:System.String"/>.</param>
+            <returns>The true if user exist else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.VerifyUserAsync(System.String,System.String)">
+            <summary>
+            Method for Verify User Info
+            </summary>
+            <param name="userName">The userName<see cref="T:System.String"/>.</param>
+            <param name="password">The password<see cref="T:System.String"/>.</param>
+            <returns>The user profile</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.AddUserAsync(User.API.Models.UserProfile)">
+            <summary>
+            Method for adding new user
+            </summary>
+            <param name="user">The user<see cref="T:User.API.Models.UserProfile"/>.</param>
+            <returns>true if user added successful else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.UpdateUsersAsync(User.API.Models.UserProfile)">
+            <summary>
+            Method for Update User Information.
+            </summary>
+            <param name="user">The user<see cref="T:User.API.Models.UserProfile"/>.</param>
+            <returns>true if user udpated successful else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.DeleteUsersAsync(User.API.Models.UserProfile)">
+            <summary>
+            Method for Delete User Information.
+            </summary>
+            <param name="user">The user<see cref="T:User.API.Models.UserProfile"/>.</param>
+            <returns>true if user delete successful else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.ChangePasswordAsync(User.API.Models.UserProfile)">
+            <summary>
+            Method for Change Password
+            </summary>
+            <param name="user">The user<see cref="T:User.API.Models.UserProfile"/>.</param>
+            <returns>true if password udpated successful else false.</returns>
+        </member>
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.SaveChangesAsync">
+            <summary>
+            Method for Save Changes to database
+            </summary>
+            <returns>true if records saved else false.</returns>
+        </member>
+        <member name="T:User.API.Infrastructure.Services.AuthenticationService.Interfaces.IJwtAuthentication">
+            <summary>
+            Defines the <see cref="T:User.API.Infrastructure.Services.AuthenticationService.Interfaces.IJwtAuthentication" />.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.Services.AuthenticationService.Interfaces.IJwtAuthentication.GenerateToken(System.String)">
+            <summary>
+            Method for Generate JWT Token.
+            </summary>
+            <param name="username">The username<see cref="T:System.String"/>.</param>
+            <returns>The <see cref="T:User.API.Models.TokenDetail"/>.</returns>
+        </member>
+        <member name="T:User.API.Infrastructure.Services.AuthenticationService.JwtAuthentication">
+            <summary>
+            Defines the <see cref="T:User.API.Infrastructure.Services.AuthenticationService.JwtAuthentication" />.
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Services.AuthenticationService.JwtAuthentication._configuration">
+            <summary>
+            Defines the _configuration.
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Services.AuthenticationService.JwtAuthentication._logger">
+            <summary>
+            Defines the _logger.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.Services.AuthenticationService.JwtAuthentication.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{User.API.Infrastructure.Services.AuthenticationService.JwtAuthentication})">
+            <summary>
+            Initializes a new instance of the <see cref="T:User.API.Infrastructure.Services.AuthenticationService.JwtAuthentication"/> class.
+            </summary>
+            <param name="configuration">The configuration<see cref="T:Microsoft.Extensions.Configuration.IConfiguration"/>.</param>
+            <param name="logger">The logger<see cref="T:Microsoft.Extensions.Logging.ILogger`1"/>.</param>
+        </member>
+        <member name="M:User.API.Infrastructure.Services.AuthenticationService.JwtAuthentication.GenerateToken(System.String)">
+            <summary>
+            Method for Generating the JWT Token.
+            </summary>
+            <param name="username">The username<see cref="T:System.String"/>.</param>
+            <returns>The token detail</returns>
+        </member>
+        <member name="T:User.API.Infrastructure.Services.MessageSenderService.Interface.IMessageSender">
+            <summary>
+            Defines the <see cref="T:User.API.Infrastructure.Services.MessageSenderService.Interface.IMessageSender" />.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.Services.MessageSenderService.Interface.IMessageSender.SendMessage(User.API.Models.Messages.BaseMessage)">
+            <summary>
+            Send Message.
+            </summary>
+            <param name="baseMessage">The baseMessage<see cref="T:User.API.Models.Messages.BaseMessage"/>.</param>
+        </member>
+        <member name="T:User.API.Infrastructure.Services.MessageSenderService.MessageSender">
+            <summary>
+            Defines the <see cref="T:User.API.Infrastructure.Services.MessageSenderService.MessageSender" />.
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Services.MessageSenderService.MessageSender._hostname">
+            <summary>
+            Defines the _hostname.
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Services.MessageSenderService.MessageSender._password">
+            <summary>
+            Defines the _password.
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Services.MessageSenderService.MessageSender._queueName">
+            <summary>
+            Defines the _queueName.
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Services.MessageSenderService.MessageSender._username">
+            <summary>
+            Defines the _username.
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Services.MessageSenderService.MessageSender._connection">
+            <summary>
+            Defines the _connection.
+            </summary>
+        </member>
+        <member name="F:User.API.Infrastructure.Services.MessageSenderService.MessageSender._logger">
+            <summary>
+            Defines the _logger.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.Services.MessageSenderService.MessageSender.#ctor(Microsoft.Extensions.Options.IOptions{User.API.Infrastructure.Configurations.RabitMqConfig.RabbitMqConfiguration},Microsoft.Extensions.Logging.ILogger{User.API.Infrastructure.Services.MessageSenderService.MessageSender})">
+            <summary>
+            Initializes a new instance of the <see cref="T:User.API.Infrastructure.Services.MessageSenderService.MessageSender"/> class.
+            </summary>
+            <param name="rabbitMqOptions">The rabbitMqOptions<see cref="T:Microsoft.Extensions.Options.IOptions`1"/>.</param>
+            <param name="logger">The logger<see cref="T:Microsoft.Extensions.Logging.ILogger`1"/>.</param>
+        </member>
+        <member name="M:User.API.Infrastructure.Services.MessageSenderService.MessageSender.SendMessage(User.API.Models.Messages.BaseMessage)">
+            <summary>
+            The SendMessage.
+            </summary>
+            <param name="baseMessage">The baseMessage<see cref="T:User.API.Models.Messages.BaseMessage"/>.</param>
+        </member>
+        <member name="M:User.API.Infrastructure.Services.MessageSenderService.MessageSender.CreateConnection">
+            <summary>
+            The CreateConnection.
+            </summary>
+        </member>
+        <member name="M:User.API.Infrastructure.Services.MessageSenderService.MessageSender.ConnectionExists">
+            <summary>
+            The ConnectionExists.
+            </summary>
+            <returns>The <see cref="T:System.Boolean"/>.</returns>
+        </member>
+        <member name="T:User.API.Models.ApiResponse">
+            <summary>
+            Defines the <see cref="T:User.API.Models.ApiResponse" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.ApiResponse.Status">
+            <summary>
+            Gets or sets the Status.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.ApiResponse.Message">
+            <summary>
+            Gets or sets the Message.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.ApiResponse.ResponseValue">
+            <summary>
+            Gets or sets the ResponseValue.
+            </summary>
+        </member>
+        <member name="T:User.API.Models.Dtos.ChangePasswordDto">
+            <summary>
+            Defines the <see cref="T:User.API.Models.Dtos.ChangePasswordDto" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.ChangePasswordDto.Password">
+            <summary>
+            Gets or sets the Password.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.ChangePasswordDto.ContactNumber">
+            <summary>
+            Gets or sets the ContactNumber.
+            </summary>
+        </member>
+        <member name="T:User.API.Models.Dtos.CreateUserProfileDto">
+            <summary>
+            Defines the <see cref="T:User.API.Models.Dtos.CreateUserProfileDto" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.CreateUserProfileDto.Email">
+            <summary>
+            Gets or sets the Email.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.CreateUserProfileDto.LoginId">
+            <summary>
+            Gets or sets the LoginId.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.CreateUserProfileDto.FirstName">
+            <summary>
+            Gets or sets the FirstName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.CreateUserProfileDto.LastName">
+            <summary>
+            Gets or sets the LastName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.CreateUserProfileDto.Gender">
+            <summary>
+            Gets or sets the Gender.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.CreateUserProfileDto.DateOfBirth">
+            <summary>
+            Gets or sets the DateOfBirth.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.CreateUserProfileDto.Password">
+            <summary>
+            Gets or sets the Password.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.CreateUserProfileDto.ContactNumber">
+            <summary>
+            Gets or sets the ContactNumber.
+            </summary>
+        </member>
+        <member name="T:User.API.Models.Dtos.LoginConfirmationDto">
+            <summary>
+            Defines the <see cref="T:User.API.Models.Dtos.LoginConfirmationDto" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.LoginConfirmationDto.TokenDetail">
+            <summary>
+            Gets or sets the TokenDetail.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.LoginConfirmationDto.UserInfo">
+            <summary>
+            Gets or sets the UserInfo.
+            </summary>
+        </member>
+        <member name="T:User.API.Models.Dtos.UpdateUserProfileDto">
+            <summary>
+            Defines the <see cref="T:User.API.Models.Dtos.UpdateUserProfileDto" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UpdateUserProfileDto.Email">
+            <summary>
+            Gets or sets the Email.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UpdateUserProfileDto.FirstName">
+            <summary>
+            Gets or sets the FirstName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UpdateUserProfileDto.LastName">
+            <summary>
+            Gets or sets the LastName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UpdateUserProfileDto.Gender">
+            <summary>
+            Gets or sets the Gender.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UpdateUserProfileDto.DateOfBirth">
+            <summary>
+            Gets or sets the DateOfBirth.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UpdateUserProfileDto.ContactNumber">
+            <summary>
+            Gets or sets the ContactNumber.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UpdateUserProfileDto.Status">
+            <summary>
+            Gets or sets the Status.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UpdateUserProfileDto.ProfileImg">
+            <summary>
+            Gets or sets the ProfileImg.
+            </summary>
+        </member>
+        <member name="T:User.API.Models.Dtos.UserDto">
+            <summary>
+            Defines the <see cref="T:User.API.Models.Dtos.UserDto" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserDto.FirstName">
+            <summary>
+            Gets or sets the FirstName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserDto.LastName">
+            <summary>
+            Gets or sets the LastName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserDto.LoginId">
+            <summary>
+            Gets or sets the LoginId.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserDto.Status">
+            <summary>
+            Gets or sets the Status.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserDto.ProfileImg">
+            <summary>
+            Gets or sets the ProfileImg.
+            </summary>
+        </member>
+        <member name="T:User.API.Models.Dtos.UserProfileDto">
+            <summary>
+            Defines the <see cref="T:User.API.Models.Dtos.UserProfileDto" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.Email">
+            <summary>
+            Gets or sets the Email.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.LoginId">
+            <summary>
+            Gets or sets the LoginId.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.FirstName">
+            <summary>
+            Gets or sets the FirstName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.LastName">
+            <summary>
+            Gets or sets the LastName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.Gender">
+            <summary>
+            Gets or sets the Gender.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.DateOfBirth">
+            <summary>
+            Gets or sets the DateOfBirth.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.ContactNumber">
+            <summary>
+            Gets or sets the ContactNumber.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.ProfileImg">
+            <summary>
+            Gets or sets the ProfileImg.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.Status">
+            <summary>
+            Gets or sets the Status.
+            </summary>
+        </member>
+        <member name="T:User.API.Models.Messages.BaseMessage">
+            <summary>
+            Defines the <see cref="T:User.API.Models.Messages.BaseMessage" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Messages.BaseMessage.Id">
+            <summary>
+            Gets or sets the Id.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Messages.BaseMessage.MessageCreated">
+            <summary>
+            Gets or sets the MessageCreated.
+            </summary>
+        </member>
+        <member name="T:User.API.Models.DeleteUserResultMessage">
+            <summary>
+            Defines the <see cref="T:User.API.Models.DeleteUserResultMessage" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.DeleteUserResultMessage.UserName">
+            <summary>
+            Gets or sets the UserName.
+            </summary>
+        </member>
+        <member name="T:User.API.Models.TokenDetail">
+            <summary>
+            Defines the <see cref="T:User.API.Models.TokenDetail" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.TokenDetail.Token">
+            <summary>
+            Gets or sets the Token.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.TokenDetail.Expiration">
+            <summary>
+            Gets or sets the Expiration.
+            </summary>
+        </member>
+        <member name="T:User.API.Models.UserLoginModel">
+            <summary>
+            Defines the <see cref="T:User.API.Models.UserLoginModel" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserLoginModel.UserName">
+            <summary>
+            Gets or sets the UserName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserLoginModel.Password">
+            <summary>
+            Gets or sets the Password.
+            </summary>
+        </member>
+        <member name="T:User.API.Models.UserProfile">
+            <summary>
+            Defines the <see cref="T:User.API.Models.UserProfile" />.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.LoginId">
+            <summary>
+            Gets or sets the LoginId.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.Email">
+            <summary>
+            Gets or sets the Email.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.FirstName">
+            <summary>
+            Gets or sets the FirstName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.LastName">
+            <summary>
+            Gets or sets the LastName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.Gender">
+            <summary>
+            Gets or sets the Gender.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.DateOfBirth">
+            <summary>
+            Gets or sets the DateOfBirth.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.Password">
+            <summary>
+            Gets or sets the Password.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.ContactNumber">
+            <summary>
+            Gets or sets the ContactNumber.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.IsActive">
+            <summary>
+            Gets or sets a value indicating whether IsActive.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.LogoutAt">
+            <summary>
+            Gets or sets the LogoutAt.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.ProfileImg">
+            <summary>
+            Gets or sets the ProfileImg.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.Status">
+            <summary>
+            Gets or sets the Status.
+            </summary>
+        </member>
+        <member name="T:User.API.Program">
+            <summary>
+            Defines the <see cref="T:User.API.Program" />.
+            </summary>
+        </member>
+        <member name="M:User.API.Program.Main(System.String[])">
+            <summary>
+            The Main.
+            </summary>
+            <param name="args">The args<see cref="!:string[]"/>.</param>
+        </member>
+        <member name="M:User.API.Program.CreateHostBuilder(System.String[])">
+            <summary>
+            The CreateHostBuilder.
+            </summary>
+            <param name="args">The args<see cref="!:string[]"/>.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.Hosting.IHostBuilder"/>.</returns>
+        </member>
+        <member name="T:User.API.Startup">
+            <summary>
+            Defines the <see cref="T:User.API.Startup" />.
+            </summary>
+        </member>
+        <member name="M:User.API.Startup.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Initializes a new instance of the <see cref="T:User.API.Startup"/> class.
+            </summary>
+            <param name="configuration">The configuration<see cref="T:Microsoft.Extensions.Configuration.IConfiguration"/>.</param>
+        </member>
+        <member name="P:User.API.Startup.Configuration">
+            <summary>
+            Gets the Configuration.
+            </summary>
+        </member>
+        <member name="M:User.API.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            The ConfigureServices.
+            </summary>
+            <param name="services">The services<see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.</param>
+        </member>
+        <member name="M:User.API.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            The Configure.
+            </summary>
+            <param name="app">The app<see cref="T:Microsoft.AspNetCore.Builder.IApplicationBuilder"/>.</param>
+            <param name="env">The env<see cref="T:Microsoft.AspNetCore.Hosting.IWebHostEnvironment"/>.</param>
+        </member>
+    </members>
+</doc>

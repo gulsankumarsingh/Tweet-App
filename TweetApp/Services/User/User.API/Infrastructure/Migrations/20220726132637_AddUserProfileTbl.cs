@@ -1,10 +1,17 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
-
-namespace User.API.Infrastructure.Migrations
+﻿namespace User.API.Infrastructure.Migrations
 {
+    using Microsoft.EntityFrameworkCore.Migrations;
+    using System;
+
+    /// <summary>
+    /// Defines the <see cref="AddUserProfileTbl" />.
+    /// </summary>
     public partial class AddUserProfileTbl : Migration
     {
+        /// <summary>
+        /// The Up.
+        /// </summary>
+        /// <param name="migrationBuilder">The migrationBuilder<see cref="MigrationBuilder"/>.</param>
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -30,6 +37,10 @@ namespace User.API.Infrastructure.Migrations
                 });
         }
 
+        /// <summary>
+        /// The Down.
+        /// </summary>
+        /// <param name="migrationBuilder">The migrationBuilder<see cref="MigrationBuilder"/>.</param>
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

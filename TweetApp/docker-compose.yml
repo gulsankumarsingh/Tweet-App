@@ -1,0 +1,42 @@
+version: '3.4'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  portainer:
+    image: portainer/portainer-ce
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.2
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+
+  user.api:
+    image: ${DOCKER_REGISTRY-}userapi
+    build:
+      context: .
+      dockerfile: Services/User/User.API/Dockerfile
+
+  tweet.api:
+    image: ${DOCKER_REGISTRY-}tweetapi
+    build:
+      context: .
+      dockerfile: Services/Tweet/Tweet.API/Dockerfile
+
+  ocelotapigateway:
+    image: ${DOCKER_REGISTRY-}ocelotapigateway
+    build:
+      context: .
+      dockerfile: ApiGateways/OcelotApiGateway/Dockerfile
+
+volumes:
+  sql_data:
+  portainer_data:
+  elasticsearch-data:
+
+
