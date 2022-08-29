@@ -7,6 +7,7 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
 COPY ["Services/User/User.API/User.API.csproj", "Services/User/User.API/"]
+COPY ["BuildingBlocks/PromRequestMiddleware/Common.RequestMiddleware/Common.RequestMiddleware.csproj", "BuildingBlocks/PromRequestMiddleware/Common.RequestMiddleware/"]
 COPY ["BuildingBlocks/Logging/Common.Logging/Common.Logging.csproj", "BuildingBlocks/Logging/Common.Logging/"]
 RUN dotnet restore "Services/User/User.API/User.API.csproj"
 COPY . .

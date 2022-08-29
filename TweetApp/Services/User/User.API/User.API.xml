@@ -34,7 +34,7 @@
             Defines the _mapper.
             </summary>
         </member>
-        <member name="M:UserService.API.Controllers.UsersController.#ctor(User.API.Infrastructure.Repository.Interface.IUserRepository,Microsoft.Extensions.Logging.ILogger{UserService.API.Controllers.UsersController},AutoMapper.IMapper,User.API.Infrastructure.Services.AuthenticationService.Interfaces.IJwtAuthentication,User.API.Infrastructure.Services.MessageSenderService.Interface.IMessageSender)">
+        <member name="M:UserService.API.Controllers.UsersController.#ctor(User.API.Infrastructure.Repository.Interface.IUserRepository,Microsoft.Extensions.Logging.ILogger{UserService.API.Controllers.UsersController},AutoMapper.IMapper,User.API.Infrastructure.Services.AuthenticationService.Interfaces.IJwtAuthentication,User.API.Infrastructure.Services.MessageSenderService.Interface.IMessageSender,User.API.Infrastructure.Services.AzureServiceBusSender.Interface.IDeleteUserMessageSender)">
             <summary>
             Initializes a new instance of the <see cref="T:UserService.API.Controllers.UsersController"/> class.
             </summary>
@@ -43,8 +43,9 @@
             <param name="mapper">The mapper</param>
             <param name="jwtAuthentication">The jwtAuthentication.</param>
             <param name="messageSender">The messageSender.</param>
+            <param name="deleteUserMessageSender">The deleteUserMessageSender.</param>
         </member>
-        <member name="M:UserService.API.Controllers.UsersController.GetAllUsers">
+        <member name="M:UserService.API.Controllers.UsersController.GetAllUsersAsync">
             <summary>
             Method for the get All Users information.
             </summary>
@@ -108,12 +109,12 @@
             <param name="changePassword">The model with change password essentials.</param>
             <returns>The ApiResponse with status and message/>.</returns>
         </member>
-        <member name="M:UserService.API.Controllers.UsersController.ResetPasswordAsync(System.String,System.String)">
+        <member name="M:UserService.API.Controllers.UsersController.ResetPasswordAsync(System.String,User.API.Models.Dtos.ResetPasswordDto)">
             <summary>
             The ResetPasswordAsync.
             </summary>
             <param name="username">username</param>
-            <param name="password">password</param>
+            <param name="resetPasswordDto">resetPasswordDto</param>
             <returns>The ApiResponse with status and message/>.</returns>
         </member>
         <member name="T:UserService.API.Infrastructure.Configuration.AutoMapperConfig.ConfigureAutomapper">
@@ -153,6 +154,16 @@
             Initializes a new instance of the <see cref="T:User.API.Infrastructure.ActionResults.InternalServerErrorObjectResult"/> class.
             </summary>
             <param name="error">The error</param>
+        </member>
+        <member name="P:User.API.Infrastructure.Configurations.AzureBusConfig.AzureBusConfiguration.QueueConnectionString">
+            <summary>
+            Gets or sets the QueueConnectionString.
+            </summary>
+        </member>
+        <member name="P:User.API.Infrastructure.Configurations.AzureBusConfig.AzureBusConfiguration.TopicName">
+            <summary>
+            Gets or sets the QueueName.
+            </summary>
         </member>
         <member name="T:User.API.Infrastructure.Configurations.RabitMqConfig.RabbitMqConfiguration">
             <summary>
@@ -238,34 +249,6 @@
             Gets or sets the DeveloperMessage.
             </summary>
         </member>
-        <member name="T:User.API.Infrastructure.Migrations.AddUserProfileTbl">
-            <summary>
-            Defines the <see cref="T:User.API.Infrastructure.Migrations.AddUserProfileTbl" />.
-            </summary>
-        </member>
-        <member name="M:User.API.Infrastructure.Migrations.AddUserProfileTbl.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <summary>
-            The Up.
-            </summary>
-            <param name="migrationBuilder">The migrationBuilder<see cref="T:Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder"/>.</param>
-        </member>
-        <member name="M:User.API.Infrastructure.Migrations.AddUserProfileTbl.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <summary>
-            The Down.
-            </summary>
-            <param name="migrationBuilder">The migrationBuilder<see cref="T:Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder"/>.</param>
-        </member>
-        <member name="T:User.API.Infrastructure.Migrations.UserDbContextModelSnapshot">
-            <summary>
-            Defines the <see cref="T:User.API.Infrastructure.Migrations.UserDbContextModelSnapshot" />.
-            </summary>
-        </member>
-        <member name="M:User.API.Infrastructure.Migrations.UserDbContextModelSnapshot.BuildModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <summary>
-            The BuildModel.
-            </summary>
-            <param name="modelBuilder">The modelBuilder<see cref="T:Microsoft.EntityFrameworkCore.ModelBuilder"/>.</param>
-        </member>
         <member name="T:User.API.Infrastructure.Repository.Interface.IUserRepository">
             <summary>
             Defines the <see cref="T:User.API.Infrastructure.Repository.Interface.IUserRepository" />.
@@ -298,7 +281,7 @@
             <param name="userName">The userName<see cref="T:System.String"/>.</param>
             <returns>The list of user profiles</returns>
         </member>
-        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.IsUserExistAsync(System.String)">
+        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.IsEmailExistAsync(System.String)">
             <summary>
             The IsUserExistAsync.
             </summary>
@@ -340,17 +323,11 @@
             <param name="user">The user<see cref="T:User.API.Models.UserProfile"/>.</param>
             <returns>true if password udpated successful else false.</returns>
         </member>
-        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.GetActiveUsersAsync">
-            <summary>
-            The GetActiveUsersAsync.
-            </summary>
-            <returns>The list of active users</returns>
-        </member>
         <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.VerifyUserAsync(System.String,System.String)">
             <summary>
             The VerifyUserAsync.
             </summary>
-            <param name="userName">The userName<see cref="T:System.String"/>.</param>
+            <param name="email">The eamil<see cref="T:System.String"/>.</param>
             <param name="password">The password<see cref="T:System.String"/>.</param>
             <returns>The user profile</returns>
         </member>
@@ -409,13 +386,7 @@
             <param name="userName">The userName<see cref="T:System.String"/>.</param>
             <returns>The list of user profiles</returns>
         </member>
-        <member name="M:User.API.Infrastructure.Repository.UserRepository.GetActiveUsersAsync">
-            <summary>
-            Method to get Active Users
-            </summary>
-            <returns>The list of user profiles</returns>
-        </member>
-        <member name="M:User.API.Infrastructure.Repository.UserRepository.IsUserExistAsync(System.String)">
+        <member name="M:User.API.Infrastructure.Repository.UserRepository.IsEmailExistAsync(System.String)">
             <summary>
             Method for Check if User Exist
             </summary>
@@ -433,7 +404,7 @@
             <summary>
             Method for Verify User Info
             </summary>
-            <param name="userName">The userName<see cref="T:System.String"/>.</param>
+            <param name="email">The email<see cref="T:System.String"/>.</param>
             <param name="password">The password<see cref="T:System.String"/>.</param>
             <returns>The user profile</returns>
         </member>
@@ -612,9 +583,9 @@
             Gets or sets the Password.
             </summary>
         </member>
-        <member name="P:User.API.Models.Dtos.ChangePasswordDto.ContactNumber">
+        <member name="P:User.API.Models.Dtos.ChangePasswordDto.Email">
             <summary>
-            Gets or sets the ContactNumber.
+            Gets or sets the Email.
             </summary>
         </member>
         <member name="T:User.API.Models.Dtos.CreateUserProfileDto">
@@ -627,9 +598,9 @@
             Gets or sets the Email.
             </summary>
         </member>
-        <member name="P:User.API.Models.Dtos.CreateUserProfileDto.LoginId">
+        <member name="P:User.API.Models.Dtos.CreateUserProfileDto.Username">
             <summary>
-            Gets or sets the LoginId.
+            Gets or sets the Username.
             </summary>
         </member>
         <member name="P:User.API.Models.Dtos.CreateUserProfileDto.FirstName">
@@ -717,29 +688,24 @@
             Gets or sets the Status.
             </summary>
         </member>
-        <member name="P:User.API.Models.Dtos.UpdateUserProfileDto.ProfileImg">
-            <summary>
-            Gets or sets the ProfileImg.
-            </summary>
-        </member>
         <member name="T:User.API.Models.Dtos.UserDto">
             <summary>
             Defines the <see cref="T:User.API.Models.Dtos.UserDto" />.
             </summary>
         </member>
-        <member name="P:User.API.Models.Dtos.UserDto.FirstName">
+        <member name="P:User.API.Models.Dtos.UserDto.FullName">
             <summary>
-            Gets or sets the FirstName.
+            Gets or sets the FullName.
             </summary>
         </member>
-        <member name="P:User.API.Models.Dtos.UserDto.LastName">
+        <member name="P:User.API.Models.Dtos.UserDto.Username">
             <summary>
-            Gets or sets the LastName.
+            Gets or sets the Username.
             </summary>
         </member>
-        <member name="P:User.API.Models.Dtos.UserDto.LoginId">
+        <member name="P:User.API.Models.Dtos.UserDto.Email">
             <summary>
-            Gets or sets the LoginId.
+            Gets or sets the Email.
             </summary>
         </member>
         <member name="P:User.API.Models.Dtos.UserDto.Status">
@@ -747,9 +713,19 @@
             Gets or sets the Status.
             </summary>
         </member>
-        <member name="P:User.API.Models.Dtos.UserDto.ProfileImg">
+        <member name="P:User.API.Models.Dtos.UserDto.ProfileImage">
             <summary>
             Gets or sets the ProfileImg.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserDto.IsActive">
+            <summary>
+            Gets or sets the IsActive.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserDto.LogoutAt">
+            <summary>
+            Gets or sets the LogoutAt.
             </summary>
         </member>
         <member name="T:User.API.Models.Dtos.UserProfileDto">
@@ -762,9 +738,9 @@
             Gets or sets the Email.
             </summary>
         </member>
-        <member name="P:User.API.Models.Dtos.UserProfileDto.LoginId">
+        <member name="P:User.API.Models.Dtos.UserProfileDto.Username">
             <summary>
-            Gets or sets the LoginId.
+            Gets or sets the Username.
             </summary>
         </member>
         <member name="P:User.API.Models.Dtos.UserProfileDto.FirstName">
@@ -775,6 +751,11 @@
         <member name="P:User.API.Models.Dtos.UserProfileDto.LastName">
             <summary>
             Gets or sets the LastName.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.FullName">
+            <summary>
+            Gets the FullName.
             </summary>
         </member>
         <member name="P:User.API.Models.Dtos.UserProfileDto.Gender">
@@ -792,7 +773,7 @@
             Gets or sets the ContactNumber.
             </summary>
         </member>
-        <member name="P:User.API.Models.Dtos.UserProfileDto.ProfileImg">
+        <member name="P:User.API.Models.Dtos.UserProfileDto.ProfileImage">
             <summary>
             Gets or sets the ProfileImg.
             </summary>
@@ -802,14 +783,24 @@
             Gets or sets the Status.
             </summary>
         </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.IsActive">
+            <summary>
+            Gets or sets the IsActive.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.Dtos.UserProfileDto.LogoutAt">
+            <summary>
+            Gets or sets the LogoutAt.
+            </summary>
+        </member>
         <member name="T:User.API.Models.Messages.BaseMessage">
             <summary>
             Defines the <see cref="T:User.API.Models.Messages.BaseMessage" />.
             </summary>
         </member>
-        <member name="P:User.API.Models.Messages.BaseMessage.Id">
+        <member name="P:User.API.Models.Messages.BaseMessage.QueueId">
             <summary>
-            Gets or sets the Id.
+            Gets or sets the QueueId.
             </summary>
         </member>
         <member name="P:User.API.Models.Messages.BaseMessage.MessageCreated">
@@ -832,6 +823,11 @@
             Defines the <see cref="T:User.API.Models.TokenDetail" />.
             </summary>
         </member>
+        <member name="P:User.API.Models.TokenDetail.Username">
+            <summary>
+            Gets or sets the Username.
+            </summary>
+        </member>
         <member name="P:User.API.Models.TokenDetail.Token">
             <summary>
             Gets or sets the Token.
@@ -847,7 +843,7 @@
             Defines the <see cref="T:User.API.Models.UserLoginModel" />.
             </summary>
         </member>
-        <member name="P:User.API.Models.UserLoginModel.UserName">
+        <member name="P:User.API.Models.UserLoginModel.Email">
             <summary>
             Gets or sets the UserName.
             </summary>
@@ -862,9 +858,9 @@
             Defines the <see cref="T:User.API.Models.UserProfile" />.
             </summary>
         </member>
-        <member name="P:User.API.Models.UserProfile.LoginId">
+        <member name="P:User.API.Models.UserProfile.Username">
             <summary>
-            Gets or sets the LoginId.
+            Gets or sets the Username.
             </summary>
         </member>
         <member name="P:User.API.Models.UserProfile.Email">
@@ -912,7 +908,7 @@
             Gets or sets the LogoutAt.
             </summary>
         </member>
-        <member name="P:User.API.Models.UserProfile.ProfileImg">
+        <member name="P:User.API.Models.UserProfile.ProfileImage">
             <summary>
             Gets or sets the ProfileImg.
             </summary>
@@ -931,13 +927,13 @@
             <summary>
             The Main.
             </summary>
-            <param name="args">The args<see cref="!:string[]"/>.</param>
+            <param name="args">The args.</param>
         </member>
         <member name="M:User.API.Program.CreateHostBuilder(System.String[])">
             <summary>
             The CreateHostBuilder.
             </summary>
-            <param name="args">The args<see cref="!:string[]"/>.</param>
+            <param name="args">The args.</param>
             <returns>The <see cref="T:Microsoft.Extensions.Hosting.IHostBuilder"/>.</returns>
         </member>
         <member name="T:User.API.Startup">

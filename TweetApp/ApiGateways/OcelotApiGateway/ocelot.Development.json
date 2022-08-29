@@ -65,7 +65,7 @@
       "UpstreamHttpMethod": [ "POST" ]
     },
     { //logout user
-      "DownstreamPathTemplate": "/api/v1.0/users/logout",
+      "DownstreamPathTemplate": "/api/v1.0/users/logout/{username}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -73,7 +73,7 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/api/v1.0/tweets/logout",
+      "UpstreamPathTemplate": "/api/v1.0/tweets/logout/{username}",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
@@ -108,8 +108,9 @@
         "AllowedScopes": []
       }
     },
-    { //forgot password
-      "DownstreamPathTemplate": "/api/v1.0/users/{username}/forgotpassword",
+    
+    { //delete user by username
+      "DownstreamPathTemplate": "/api/v1.0/users/delete/{username}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -117,12 +118,24 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/forgotpassword",
-      "UpstreamHttpMethod": [ "PUT" ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/user/delete/{username}",
+      "UpstreamHttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
       }
+    },
+    { //forgot password
+      "DownstreamPathTemplate": "/api/v1.0/users/{username}/forgetpassword",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/forgetpassword",
+      "UpstreamHttpMethod": [ "PUT" ]
     },
     { //reset password
       "DownstreamPathTemplate": "/api/v1.0/users/{username}/resetpassword",
@@ -151,6 +164,22 @@
         }
       ],
       "UpstreamPathTemplate": "/api/v1.0/tweets/all",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //get tweet by tweet Id
+      "DownstreamPathTemplate": "/api/v1.0/tweets/get/{tweetId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/get/{tweetId}",
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
@@ -269,7 +298,7 @@
         "AllowedScopes": []
       }
     },
-    { //add a comment to a tweet by tweet id
+    { //add a reply to a tweet by tweet id
       "DownstreamPathTemplate": "/api/v1.0/tweets/{username}/reply/{tweetId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -280,6 +309,38 @@
       ],
       "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/reply/{tweetId}",
       "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //update a reply to a tweet by reply id
+      "DownstreamPathTemplate": "/api/v1.0/tweets/{username}/reply/update/{replyId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/reply/update/{replyId}",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    { //delete a reply to a tweet by reply id
+      "DownstreamPathTemplate": "/api/v1.0/tweets/{username}/reply/delete/{replyId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tweet.api",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/v1.0/tweets/{username}/reply/delete/{replyId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []

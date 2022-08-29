@@ -38,6 +38,13 @@
             </summary>
             <returns>The All tweets.</returns>
         </member>
+        <member name="M:Tweet.API.Controllers.TweetsController.GetTweetByTweetIdAsync(System.String)">
+            <summary>
+            Method for Get Tweets By User name.
+            </summary>
+            <param name="tweetId">The tweetId.</param>
+            <returns>The Tweet by tweet Id.</returns>
+        </member>
         <member name="M:Tweet.API.Controllers.TweetsController.GetTweetsByUserAsync(System.String)">
             <summary>
             Method for Get Tweets By User name.
@@ -53,7 +60,7 @@
             <param name="createTweetDto">Tweet message info</param>
             <returns>The Api response with status and message</returns>
         </member>
-        <member name="M:Tweet.API.Controllers.TweetsController.UpdateTweetAsync(System.String,System.Int32,Tweet.API.Models.Dtos.MessageDto)">
+        <member name="M:Tweet.API.Controllers.TweetsController.UpdateTweetAsync(System.String,System.String,Tweet.API.Models.Dtos.MessageDto)">
             <summary>
             Method for Updating the Tweet
             </summary>
@@ -62,7 +69,7 @@
             <param name="messageDto">The tweet message</param>
             <returns>The Api response with status and message</returns>
         </member>
-        <member name="M:Tweet.API.Controllers.TweetsController.DeleteTweetAsync(System.String,System.Int32)">
+        <member name="M:Tweet.API.Controllers.TweetsController.DeleteTweetAsync(System.String,System.String)">
             <summary>
             Method for Deleting a Tweet
             </summary>
@@ -70,22 +77,15 @@
             <param name="tweetId">The tweetId</param>
             <returns>The Api response with status and message</returns>
         </member>
-        <member name="M:Tweet.API.Controllers.TweetsController.TotalLikeOnTweetAsync(System.Int32)">
-            <summary>
-            Method for get the total likes count
-            </summary>
-            <param name="tweetId">Tweet id</param>
-            <returns>Total likes count</returns>
-        </member>
-        <member name="M:Tweet.API.Controllers.TweetsController.LikeTweetAsync(System.Int32,System.String)">
+        <member name="M:Tweet.API.Controllers.TweetsController.LikeTweetAsync(System.String,System.String)">
             <summary>
             Method for Liking a Tweet
             </summary>
-            <param name="tweetId">The tweetId<see cref="T:System.Int32"/>.</param>
+            <param name="tweetId">The tweetId<see cref="T:System.String"/>.</param>
             <param name="username">The username<see cref="T:System.String"/>.</param>
             <returns>The Api response with status and message</returns>
         </member>
-        <member name="M:Tweet.API.Controllers.TweetsController.UnlikeTweetAsync(System.Int32,System.String)">
+        <member name="M:Tweet.API.Controllers.TweetsController.UnlikeTweetAsync(System.String,System.String)">
             <summary>
             Method for unlike a tweet
             </summary>
@@ -93,16 +93,33 @@
             <param name="username">The username</param>
             <returns>The Api response with status and message</returns>
         </member>
-        <member name="M:Tweet.API.Controllers.TweetsController.ReplyToTweetAsync(System.Int32,System.String,Tweet.API.Models.Dtos.MessageDto)">
+        <member name="M:Tweet.API.Controllers.TweetsController.ReplyToTweetAsync(System.String,System.String,Tweet.API.Models.Dtos.MessageDto)">
             <summary>
             Method for Reply to a Tweet
             </summary>
             <param name="tweetId">The tweetId</param>
             <param name="username">The username</param>
-            <param name="commentDto">The reply information</param>
+            <param name="messgaeDto">The reply information</param>
             <returns>The Api response with status and message</returns>
         </member>
-        <member name="M:Tweet.API.Controllers.TweetsController.GetAllReplyAsync(System.Int32)">
+        <member name="M:Tweet.API.Controllers.TweetsController.UpdateReplyToTweetAsync(System.String,System.String,Tweet.API.Models.Dtos.MessageDto)">
+            <summary>
+            Method for Updating the Reply to a Tweet
+            </summary>
+            <param name="replyId">The replyId</param>
+            <param name="username">The username</param>
+            <param name="messageDto">The reply information</param>
+            <returns>The Api response with status and message</returns>
+        </member>
+        <member name="M:Tweet.API.Controllers.TweetsController.DeleteReplyToTweetAsync(System.String,System.String)">
+            <summary>
+            Method for Reply to a Tweet
+            </summary>
+            <param name="replyId">The replyId</param>
+            <param name="username">The username</param>
+            <returns>The Api response with status and message</returns>
+        </member>
+        <member name="M:Tweet.API.Controllers.TweetsController.GetAllReplyAsync(System.String)">
             <summary>
             Method for Get All Reply for a tweet
             </summary>
@@ -147,6 +164,16 @@
             </summary>
             <param name="options">Swagger options parameter</param>
         </member>
+        <member name="P:Tweet.API.Infrastructure.Configurations.AzureBusConfig.AzureBusConfiguration.QueueConnectionString">
+            <summary>
+            Gets or sets the QueueConnectionString.
+            </summary>
+        </member>
+        <member name="P:Tweet.API.Infrastructure.Configurations.AzureBusConfig.AzureBusConfiguration.TopicName">
+            <summary>
+            Gets or sets the QueueName.
+            </summary>
+        </member>
         <member name="T:Tweet.API.Infrastructure.Configurations.RabbitMqConfig.RabbitMqConfiguration">
             <summary>
             Class for RabbitMq configuration
@@ -188,9 +215,9 @@
             Gets or sets the TweetDetails.
             </summary>
         </member>
-        <member name="P:Tweet.API.Infrastructure.DataContext.TweetDbContext.Comments">
+        <member name="P:Tweet.API.Infrastructure.DataContext.TweetDbContext.Replies">
             <summary>
-            Gets or sets the Comments.
+            Gets or sets the Replies.
             </summary>
         </member>
         <member name="P:Tweet.API.Infrastructure.DataContext.TweetDbContext.Likes">
@@ -241,34 +268,6 @@
             Gets or sets the DeveloperMessage.
             </summary>
         </member>
-        <member name="T:Tweet.API.Infrastructure.Migrations.AddTweetDbTables">
-            <summary>
-            Defines the <see cref="T:Tweet.API.Infrastructure.Migrations.AddTweetDbTables" />.
-            </summary>
-        </member>
-        <member name="M:Tweet.API.Infrastructure.Migrations.AddTweetDbTables.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <summary>
-            The Up.
-            </summary>
-            <param name="migrationBuilder">The migrationBuilder<see cref="T:Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder"/>.</param>
-        </member>
-        <member name="M:Tweet.API.Infrastructure.Migrations.AddTweetDbTables.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <summary>
-            The Down.
-            </summary>
-            <param name="migrationBuilder">The migrationBuilder<see cref="T:Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder"/>.</param>
-        </member>
-        <member name="T:Tweet.API.Infrastructure.Migrations.TweetDbContextModelSnapshot">
-            <summary>
-            Defines the <see cref="T:Tweet.API.Infrastructure.Migrations.TweetDbContextModelSnapshot" />.
-            </summary>
-        </member>
-        <member name="M:Tweet.API.Infrastructure.Migrations.TweetDbContextModelSnapshot.BuildModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <summary>
-            The BuildModel.
-            </summary>
-            <param name="modelBuilder">The modelBuilder<see cref="T:Microsoft.EntityFrameworkCore.ModelBuilder"/>.</param>
-        </member>
         <member name="T:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository">
             <summary>
             Defines the <see cref="T:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository" />.
@@ -287,7 +286,7 @@
             <param name="userName">The userName<see cref="T:System.String"/>.</param>
             <returns>The list of tweets</returns>
         </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.GetTweetsByIdAsync(System.Int32)">
+        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.GetTweetsByIdAsync(System.String)">
             <summary>
             The GetTweetsByIdAsync.
             </summary>
@@ -322,21 +321,14 @@
             <param name="username">The username<see cref="T:System.String"/>.</param>
             <returns>If tweet deleted then true else false.</returns>
         </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.GetTweetLikesAsync(System.Int32)">
+        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.GetTweetLikesAsync(System.String)">
             <summary>
             The GetTweetLikesAsync.
             </summary>
             <param name="tweetId">The tweetId<see cref="T:System.Int32"/>.</param>
             <returns>the list of like detail</returns>
         </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.GetTotalLikesAsync(System.Int32)">
-            <summary>
-            The GetTotalLikesAsync
-            </summary>
-            <param name="tweetId">The tweet id</param>
-            <returns>Total like count</returns>
-        </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.GetLikesByUserNameAsync(System.Int32,System.String)">
+        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.GetLikesByUserNameAsync(System.String,System.String)">
             <summary>
             The GetLikesByUserNameAsync.
             </summary>
@@ -358,18 +350,53 @@
             <param name="tweet">The tweet<see cref="T:Tweet.API.Models.Like"/>.</param>
             <returns>The true if unliked else false</returns>
         </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.GetCommentsAsync(System.Int32)">
+        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.DeleteLikeByUsernameAsync(System.String)">
             <summary>
-            The GetCommentsAsync.
+            The UnlikeATweetAsync.
+            </summary>
+            <param name="username">The username<see cref="T:System.String"/>.</param>
+            <returns>The true if unliked else false</returns>
+        </member>
+        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.GetAllReplyByTweetIdAsync(System.String)">
+            <summary>
+            The GetAllReplyByTweetIdAsync.
             </summary>
             <param name="tweetId">The tweetId<see cref="T:System.Int32"/>.</param>
             <returns>The list of comments</returns>
         </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.AddCommentAsync(Tweet.API.Models.Comment)">
+        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.GetReplyByIdAsync(System.String)">
             <summary>
-            The AddCommentAsync.
+            The GetReplyByIdAsync.
             </summary>
-            <param name="comment">The comment<see cref="T:Tweet.API.Models.Comment"/>.</param>
+            <param name="id">The tweetId<see cref="T:System.Int32"/>.</param>
+            <returns>The list of comments</returns>
+        </member>
+        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.AddReplyAsync(Tweet.API.Models.Reply)">
+            <summary>
+            The AddReplyAsync.
+            </summary>
+            <param name="reply">The reply<see cref="T:Tweet.API.Models.Reply"/>.</param>
+            <returns>true if comment added else false</returns>
+        </member>
+        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.UpdateReplyAsync(Tweet.API.Models.Reply)">
+            <summary>
+            The UpdateReplyAsync.
+            </summary>
+            <param name="reply">The reply<see cref="T:Tweet.API.Models.Reply"/>.</param>
+            <returns>true if comment added else false</returns>
+        </member>
+        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.DeleteReplyAsync(Tweet.API.Models.Reply)">
+            <summary>
+            The DeleteReplyAsync.
+            </summary>
+            <param name="reply">The reply<see cref="T:Tweet.API.Models.Reply"/>.</param>
+            <returns>true if comment added else false</returns>
+        </member>
+        <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.DeleteReplyByUsernameAsync(System.String)">
+            <summary>
+            The DeleteReplyAsync.
+            </summary>
+            <param name="username">The username<see cref="T:System.String"/>.</param>
             <returns>true if comment added else false</returns>
         </member>
         <member name="M:Tweet.API.Infrastructure.Repository.Interface.ITweetRepository.SaveChangesAsync">
@@ -406,11 +433,11 @@
             </summary>
             <returns>The list of tweets</returns>
         </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.GetTweetsByIdAsync(System.Int32)">
+        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.GetTweetsByIdAsync(System.String)">
             <summary>
             The GetTweetsByIdAsync.
             </summary>
-            <param name="tweetId">The tweetId<see cref="T:System.Int32"/>.</param>
+            <param name="tweetId">The tweetId<see cref="T:System.String"/>.</param>
             <returns>The tweet</returns>
         </member>
         <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.GetTweetsByUserAsync(System.String)">
@@ -448,39 +475,60 @@
             <param name="username">The user name <see cref="T:System.String"/>.</param>
             <returns>If tweet deleted then true else false.</returns>
         </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.GetCommentsAsync(System.Int32)">
+        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.GetReplyByIdAsync(System.String)">
             <summary>
-            The GetCommentsAsync.
+            The GetReplyByIdAsync.
             </summary>
-            <param name="tweetId">The tweetId<see cref="T:System.Int32"/>.</param>
+            <param name="id">The tweetId<see cref="T:System.String"/>.</param>
+            <returns>The reply</returns>
+        </member>
+        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.GetAllReplyByTweetIdAsync(System.String)">
+            <summary>
+            The GetAllReplyByTweetIdAsync.
+            </summary>
+            <param name="tweetId">The tweetId<see cref="T:System.String"/>.</param>
             <returns>The list of comments</returns>
         </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.AddCommentAsync(Tweet.API.Models.Comment)">
+        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.AddReplyAsync(Tweet.API.Models.Reply)">
             <summary>
-            The AddCommentAsync.
+            The AddReplyAsync.
             </summary>
-            <param name="comment">The comment<see cref="T:Tweet.API.Models.Comment"/>.</param>
+            <param name="reply">The reply<see cref="T:Tweet.API.Models.Reply"/>.</param>
             <returns>true if comment added else false</returns>
         </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.GetTweetLikesAsync(System.Int32)">
+        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.UpdateReplyAsync(Tweet.API.Models.Reply)">
+            <summary>
+            The AddReplyAsync.
+            </summary>
+            <param name="reply">The reply<see cref="T:Tweet.API.Models.Reply"/>.</param>
+            <returns>true if comment added else false</returns>
+        </member>
+        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.DeleteReplyAsync(Tweet.API.Models.Reply)">
+            <summary>
+            The AddReplyAsync.
+            </summary>
+            <param name="reply">The reply<see cref="T:Tweet.API.Models.Reply"/>.</param>
+            <returns>true if comment added else false</returns>
+        </member>
+        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.DeleteReplyByUsernameAsync(System.String)">
+            <summary>
+            The DeleteReplyAsync.
+            </summary>
+            <param name="username">The username<see cref="T:System.String"/>.</param>
+            <returns>true if reply deleted else false</returns>
+        </member>
+        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.GetTweetLikesAsync(System.String)">
             <summary>
             The GetTweetLikesAsync.
             </summary>
-            <param name="tweetId">The tweetId<see cref="T:System.Int32"/>.</param>
+            <param name="tweetId">The tweetId<see cref="T:System.String"/>.</param>
             <returns>The list of likes</returns>
         </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.GetTotalLikesAsync(System.Int32)">
-            <summary>
-            The GetTotalLikesAsync.
-            </summary>
-            <param name="tweetId">The tweet id.</param>
-            <returns>Total like count.</returns>
-        </member>
-        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.GetLikesByUserNameAsync(System.Int32,System.String)">
+        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.GetLikesByUserNameAsync(System.String,System.String)">
             <summary>
             The GetLikesByUserNameAsync.
             </summary>
-            <param name="tweetId">The tweetId<see cref="T:System.Int32"/>.</param>
+            <param name="tweetId">The tweetId<see cref="T:System.String"/>.</param>
             <param name="username">The username<see cref="T:System.String"/>.</param>
             <returns>The like detail/>.</returns>
         </member>
@@ -498,11 +546,30 @@
             <param name="tweet">The tweet<see cref="T:Tweet.API.Models.Like"/>.</param>
             <returns>true if unlike successful else false</returns>
         </member>
+        <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.DeleteLikeByUsernameAsync(System.String)">
+            <summary>
+            The UnlikeATweetAsync.
+            </summary>
+            <param name="username">The username<see cref="T:System.String"/>.</param>
+            <returns>The true if unliked else false</returns>
+        </member>
         <member name="M:Tweet.API.Infrastructure.Repository.TweetRepository.SaveChangesAsync">
             <summary>
             The SaveChangesAsync.
             </summary>
             <returns>True if records saved in database else false</returns>
+        </member>
+        <member name="M:Tweet.API.Infrastructure.Services.AzureServiceBusConsumer.DeleteUserConsumer.HandleMessage(Tweet.API.Models.DeleteUserResultMessage)">
+            <summary>
+            The HandleMessage.
+            </summary>
+            <param name="deleteUserResultMessage">The deleteUserResultMessage<see cref="T:Tweet.API.Models.DeleteUserResultMessage"/>.</param>
+            <returns>The <see cref="T:System.Threading.Tasks.Task"/>.</returns>
+        </member>
+        <member name="M:Tweet.API.Infrastructure.Services.AzureServiceBusConsumer.DeleteUserConsumer.Dispose">
+            <summary>
+            The Dispose.
+            </summary>
         </member>
         <member name="T:Tweet.API.Infrastructure.Services.MessageConsumerService.DeleteUserMessageConsumer">
             <summary>
@@ -596,52 +663,22 @@
             Gets or sets the ResponseValue.
             </summary>
         </member>
-        <member name="T:Tweet.API.Models.Comment">
+        <member name="T:Tweet.API.Models.Dtos.LikeDto">
             <summary>
-            Defines the <see cref="T:Tweet.API.Models.Comment" />.
+            Defines the <see cref="T:Tweet.API.Models.Dtos.LikeDto" />.
             </summary>
         </member>
-        <member name="P:Tweet.API.Models.Comment.Id">
+        <member name="P:Tweet.API.Models.Dtos.LikeDto.Id">
             <summary>
             Gets or sets the Id.
             </summary>
         </member>
-        <member name="P:Tweet.API.Models.Comment.Message">
-            <summary>
-            Gets or sets the Message.
-            </summary>
-        </member>
-        <member name="P:Tweet.API.Models.Comment.CommentAt">
-            <summary>
-            Gets or sets the CommentAt.
-            </summary>
-        </member>
-        <member name="P:Tweet.API.Models.Comment.TweetId">
+        <member name="P:Tweet.API.Models.Dtos.LikeDto.TweetId">
             <summary>
             Gets or sets the TweetId.
             </summary>
         </member>
-        <member name="P:Tweet.API.Models.Comment.UserName">
-            <summary>
-            Gets or sets the UserName.
-            </summary>
-        </member>
-        <member name="T:Tweet.API.Models.Dtos.CommentDto">
-            <summary>
-            Defines the <see cref="T:Tweet.API.Models.Dtos.CommentDto" />.
-            </summary>
-        </member>
-        <member name="P:Tweet.API.Models.Dtos.CommentDto.Message">
-            <summary>
-            Gets or sets the Message.
-            </summary>
-        </member>
-        <member name="P:Tweet.API.Models.Dtos.CommentDto.TweetId">
-            <summary>
-            Gets or sets the TweetId.
-            </summary>
-        </member>
-        <member name="P:Tweet.API.Models.Dtos.CommentDto.UserName">
+        <member name="P:Tweet.API.Models.Dtos.LikeDto.UserName">
             <summary>
             Gets or sets the UserName.
             </summary>
@@ -656,14 +693,24 @@
             Gets or sets the Message.
             </summary>
         </member>
-        <member name="T:Tweet.API.Models.Dtos.TweetDto">
+        <member name="T:Tweet.API.Models.Dtos.ReplyDto">
             <summary>
-            Defines the <see cref="T:Tweet.API.Models.Dtos.TweetDto" />.
+            Defines the <see cref="T:Tweet.API.Models.Dtos.ReplyDto" />.
             </summary>
         </member>
-        <member name="P:Tweet.API.Models.Dtos.TweetDto.Id">
+        <member name="P:Tweet.API.Models.Dtos.ReplyDto.Message">
             <summary>
-            Gets or sets the Id.
+            Gets or sets the Message.
+            </summary>
+        </member>
+        <member name="P:Tweet.API.Models.Dtos.ReplyDto.TweetId">
+            <summary>
+            Gets or sets the TweetId.
+            </summary>
+        </member>
+        <member name="P:Tweet.API.Models.Dtos.ReplyDto.UserName">
+            <summary>
+            Gets or sets the UserName.
             </summary>
         </member>
         <member name="P:Tweet.API.Models.Dtos.TweetDto.Message">
@@ -671,14 +718,24 @@
             Gets or sets the Message.
             </summary>
         </member>
-        <member name="P:Tweet.API.Models.Dtos.TweetDto.TweetTime">
+        <member name="P:Tweet.API.Models.Dtos.TweetDto.CreatedAt">
             <summary>
-            Gets or sets the TweetTime.
+            Gets or sets the CreatedAt.
+            </summary>
+        </member>
+        <member name="P:Tweet.API.Models.Dtos.TweetDto.UpdatedAt">
+            <summary>
+            Gets or sets the CreatedAt.
             </summary>
         </member>
         <member name="P:Tweet.API.Models.Dtos.TweetDto.UserName">
             <summary>
             Gets or sets the UserName.
+            </summary>
+        </member>
+        <member name="T:Tweet.API.Models.Dtos.TweetInfoDto">
+            <summary>
+            Defines the <see cref="T:Tweet.API.Models.Dtos.TweetInfoDto" />.
             </summary>
         </member>
         <member name="T:Tweet.API.Models.Like">
@@ -706,9 +763,9 @@
             Defines the <see cref="T:Tweet.API.Models.Messages.BaseMessage" />.
             </summary>
         </member>
-        <member name="P:Tweet.API.Models.Messages.BaseMessage.Id">
+        <member name="P:Tweet.API.Models.Messages.BaseMessage.QueueId">
             <summary>
-            Gets or sets the Id.
+            Gets or sets the QueueId.
             </summary>
         </member>
         <member name="P:Tweet.API.Models.Messages.BaseMessage.MessageCreated">
@@ -722,6 +779,41 @@
             </summary>
         </member>
         <member name="P:Tweet.API.Models.DeleteUserResultMessage.UserName">
+            <summary>
+            Gets or sets the UserName.
+            </summary>
+        </member>
+        <member name="T:Tweet.API.Models.Reply">
+            <summary>
+            Defines the <see cref="T:Tweet.API.Models.Reply" />.
+            </summary>
+        </member>
+        <member name="P:Tweet.API.Models.Reply.Id">
+            <summary>
+            Gets or sets the Id.
+            </summary>
+        </member>
+        <member name="P:Tweet.API.Models.Reply.Message">
+            <summary>
+            Gets or sets the Message.
+            </summary>
+        </member>
+        <member name="P:Tweet.API.Models.Reply.CreatedAt">
+            <summary>
+            Gets or sets the CreatedAt.
+            </summary>
+        </member>
+        <member name="P:Tweet.API.Models.Reply.UpdatedAt">
+            <summary>
+            Gets or sets the CreatedAt.
+            </summary>
+        </member>
+        <member name="P:Tweet.API.Models.Reply.TweetId">
+            <summary>
+            Gets or sets the TweetId.
+            </summary>
+        </member>
+        <member name="P:Tweet.API.Models.Reply.UserName">
             <summary>
             Gets or sets the UserName.
             </summary>
@@ -741,9 +833,14 @@
             Gets or sets the Message.
             </summary>
         </member>
-        <member name="P:Tweet.API.Models.TweetDetail.TweetTime">
+        <member name="P:Tweet.API.Models.TweetDetail.CreatedAt">
             <summary>
-            Gets or sets the TweetTime.
+            Gets or sets the CreatedAt.
+            </summary>
+        </member>
+        <member name="P:Tweet.API.Models.TweetDetail.UpdatedAt">
+            <summary>
+            Gets or sets the UpdatedAt.
             </summary>
         </member>
         <member name="P:Tweet.API.Models.TweetDetail.UserName">
@@ -760,13 +857,13 @@
             <summary>
             The Main.
             </summary>
-            <param name="args">The args<see cref="!:string[]"/>.</param>
+            <param name="args">The args</param>
         </member>
         <member name="M:Tweet.API.Program.CreateHostBuilder(System.String[])">
             <summary>
             The CreateHostBuilder.
             </summary>
-            <param name="args">The args<see cref="!:string[]"/>.</param>
+            <param name="args">The args</param>
             <returns>The <see cref="T:Microsoft.Extensions.Hosting.IHostBuilder"/>.</returns>
         </member>
         <member name="T:Tweet.API.Startup">

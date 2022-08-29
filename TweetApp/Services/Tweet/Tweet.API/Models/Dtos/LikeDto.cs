@@ -3,22 +3,20 @@
     using System.ComponentModel.DataAnnotations;
 
     /// <summary>
-    /// Defines the <see cref="CommentDto" />.
+    /// Defines the <see cref="LikeDto" />.
     /// </summary>
-    public class CommentDto
+    public class LikeDto
     {
         /// <summary>
-        /// Gets or sets the Message.
+        /// Gets or sets the Id.
         /// </summary>
-        [Required]
-        [MaxLength(144, ErrorMessage = "Only upto 144 characters allowed.")]
-        public string Message { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the TweetId.
         /// </summary>
         [Required]
-        public int TweetId { get; set; }
+        public string TweetId { get; set; }
 
         /// <summary>
         /// Gets or sets the UserName.

@@ -95,7 +95,7 @@
             }
             catch(Exception ex)
             {
-                _logger.LogError("An error occured InitializeRabbitMqListener method", ex.Message);
+                _logger.LogError($"An error occured InitializeRabbitMqListener method: ", ex.Message);
             }
             
         }
@@ -139,9 +139,7 @@
             }
             catch (Exception ex)
             {
-
                 _logger.LogError("An error occured in Consumer_Received method", ex.Message);
-
             }
 
         }
@@ -159,13 +157,13 @@
                 using IServiceScope scope = _serviceProvider.CreateScope();
                 var scopedProcessingService = scope.ServiceProvider.GetRequiredService<ITweetRepository>();
                 await scopedProcessingService.DeleteTweetByUserNameAsync(deleteUserResultMessage.UserName);
+                await scopedProcessingService.DeleteLikeByUsernameAsync(deleteUserResultMessage.UserName);
+                await scopedProcessingService.DeleteReplyByUsernameAsync(deleteUserResultMessage.UserName);
             }
             catch(Exception ex)
             {
                 _logger.LogError("An error occured in HandleMessage method", ex.Message);
             }
-            
-
         }
 
         /// <summary>

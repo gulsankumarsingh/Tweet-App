@@ -1,17 +1,14 @@
-﻿namespace Tweet.API.Models.Dtos
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
-    /// <summary>
-    /// Defines the <see cref="TweetDto" />.
-    /// </summary>
+namespace Tweet.API.Models.Dtos
+{
     public class TweetDto
     {
-        /// <summary>
-        /// Gets or sets the Id.
-        /// </summary>
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the Message.
@@ -21,10 +18,14 @@
         public string Message { get; set; }
 
         /// <summary>
-        /// Gets or sets the TweetTime.
+        /// Gets or sets the CreatedAt.
         /// </summary>
         [Required]
-        public DateTime TweetTime { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        /// <summary>
+        /// Gets or sets the CreatedAt.
+        /// </summary>
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         /// <summary>
         /// Gets or sets the UserName.

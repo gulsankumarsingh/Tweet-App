@@ -49,7 +49,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while fetching all users!");
+                _logger.LogError( "An error occured while fetching all users!", ex.Message);
             }
             return userList;
         }
@@ -68,7 +68,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while fetching user by email!");
+                _logger.LogError("An error occured while fetching user by email!", ex.Message);
             }
             return user;
         }
@@ -83,11 +83,11 @@
             UserProfile user = null;
             try
             {
-                user = await _dbContext.UserProfiles.FirstOrDefaultAsync(e => e.LoginId == userName);
+                user = await _dbContext.UserProfiles.FirstOrDefaultAsync(e => e.Username == userName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while fetching user by user name!");
+                _logger.LogError("An error occured while fetching user by user name!", ex.Message);
             }
             return user;
         }
@@ -102,39 +102,24 @@
             List<UserProfile> user = null;
             try
             {
-                user = await _dbContext.UserProfiles.Where(e => e.LoginId.Contains(userName)).ToListAsync();
+                var userProfiles = await _dbContext.UserProfiles.ToListAsync();
+                user = userProfiles.Where(e => e.Username.ToLower().Contains(userName.ToLower())).ToList();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while fetching user by username!");
+                _logger.LogError("An error occured while fetching user by username!", ex.Message);
             }
             return user;
         }
 
-        /// <summary>
-        /// Method to get Active Users
-        /// </summary>
-        /// <returns>The list of user profiles</returns>
-        public async Task<List<UserProfile>> GetActiveUsersAsync()
-        {
-            List<UserProfile> userList = null;
-            try
-            {
-                userList = await _dbContext.UserProfiles.Where(i => i.IsActive).ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, "An error occured while fetching active users!");
-            }
-            return userList;
-        }
+        
 
         /// <summary>
         /// Method for Check if User Exist
         /// </summary>
         /// <param name="email">The email<see cref="string"/>.</param>
         /// <returns>The true if user exist else false.</returns>
-        public async Task<bool> IsUserExistAsync(string email)
+        public async Task<bool> IsEmailExistAsync(string email)
         {
             bool isUserExist = false;
             try
@@ -143,7 +128,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while checking user exist or not!");
+                _logger.LogError("An error occured while checking user exist or not!", ex.Message);
             }
             return isUserExist;
         }
@@ -158,11 +143,11 @@
             bool isUserExist = false;
             try
             {
-                isUserExist = await _dbContext.UserProfiles.AnyAsync(e => e.LoginId == userName);
+                isUserExist = await _dbContext.UserProfiles.AnyAsync(e => e.Username == userName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while checking user exist or not!");
+                _logger.LogError("An error occured while checking user exist or not!", ex.Message);
             }
             return isUserExist;
         }
@@ -170,19 +155,19 @@
         /// <summary>
         /// Method for Verify User Info
         /// </summary>
-        /// <param name="userName">The userName<see cref="string"/>.</param>
+        /// <param name="email">The email<see cref="string"/>.</param>
         /// <param name="password">The password<see cref="string"/>.</param>
         /// <returns>The user profile</returns>
-        public async Task<UserProfile> VerifyUserAsync(string userName, string password)
+        public async Task<UserProfile> VerifyUserAsync(string email, string password)
         {
             UserProfile user = null;
             try
             {
-                user = await _dbContext.UserProfiles.FirstOrDefaultAsync(e => (e.Email == userName || e.LoginId == userName) && e.Password == password);
+                user = await _dbContext.UserProfiles.FirstOrDefaultAsync(e => (e.Email == email) && e.Password == password);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while verifying user detail!");
+                _logger.LogError("An error occured while verifying user detail!", ex.Message);
             }
             return user;
         }
@@ -202,7 +187,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while adding user!");
+                _logger.LogError("An error occured while adding user!", ex.Message);
             }
             return isUserAdded;
         }
@@ -222,7 +207,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while updating user!");
+                _logger.LogError("An error occured while updating user!", ex.Message);
             }
             return isUpadateSuccess;
         }
@@ -242,7 +227,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while removing user!");
+                _logger.LogError("An error occured while removing user!", ex.Message);
             }
             return isDeleteSuccess;
         }
@@ -263,7 +248,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while updating user!");
+                _logger.LogError( "An error occured while updating user!", ex.Message);
             }
             return isUpadateSuccess;
         }
@@ -281,7 +266,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while saving the record to db!");
+                _logger.LogError( "An error occured while saving the record to db!", ex.Message);
             }
             return isRecordSaved;
         }

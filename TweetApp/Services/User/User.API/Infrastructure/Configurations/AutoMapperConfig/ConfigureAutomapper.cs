@@ -16,8 +16,8 @@
         {
             CreateMap<UserProfile, CreateUserProfileDto>().ReverseMap();
             CreateMap<UserProfile, UpdateUserProfileDto>().ReverseMap();
-            CreateMap<UserProfile, UserDto>().ReverseMap();
-            CreateMap<UserProfile, UserProfileDto>().ReverseMap();
+            CreateMap<UserProfile, UserDto>().ForMember(des => des.FullName, source => source.MapFrom(src => $"{src.FirstName} {src.LastName}")).ReverseMap();
+            CreateMap<UserProfile, UserProfileDto>().ForMember(des => des.FullName, source => source.MapFrom(src => $"{src.FirstName} {src.LastName}")).ReverseMap();
         }
     }
 }

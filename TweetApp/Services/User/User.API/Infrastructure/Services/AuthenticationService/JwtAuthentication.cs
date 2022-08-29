@@ -51,7 +51,7 @@
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                     new Claim(ClaimTypes.Name, username)
-            };
+                };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtDetail").GetSection("Key").Value));
                 var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
@@ -60,12 +60,13 @@
                         _configuration.GetSection("JwtDetail").GetSection("Issuer").Value,
                             _configuration.GetSection("JwtDetail").GetSection("Audience").Value,
                         claims,
-                        expires: DateTime.UtcNow.AddMinutes(30),
+                        expires: DateTime.UtcNow.AddDays(7),
                         signingCredentials: signIn);
                 var tokenHandler = new JwtSecurityTokenHandler();
 
                 tokenDetail = new TokenDetail
                 {
+                    Username= username,
                     Token = tokenHandler.WriteToken(token),
                     Expiration = token.ValidTo
                 };

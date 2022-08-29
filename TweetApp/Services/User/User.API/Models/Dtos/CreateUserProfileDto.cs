@@ -15,10 +15,10 @@
         public string Email { get; set; }
 
         /// <summary>
-        /// Gets or sets the LoginId.
+        /// Gets or sets the Username.
         /// </summary>
         [Required]
-        public string LoginId { get; set; }
+        public string Username { get; set; }
 
         /// <summary>
         /// Gets or sets the FirstName.

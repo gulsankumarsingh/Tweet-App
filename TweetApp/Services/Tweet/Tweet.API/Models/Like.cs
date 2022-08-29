@@ -1,6 +1,8 @@
 ﻿namespace Tweet.API.Models
 {
+    using System;
     using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     /// <summary>
     /// Defines the <see cref="Like" />.
@@ -11,13 +13,14 @@
         /// Gets or sets the Id.
         /// </summary>
         [Key]
-        public int Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the TweetId.
         /// </summary>
         [Required]
-        public int TweetId { get; set; }
+        public string TweetId { get; set; }
 
         /// <summary>
         /// Gets or sets the UserName.

@@ -1,5 +1,6 @@
 ﻿namespace User.API.Models
 {
+    using Microsoft.AspNetCore.Http;
     using System;
     using System.ComponentModel.DataAnnotations;
 
@@ -9,10 +10,10 @@
     public class UserProfile
     {
         /// <summary>
-        /// Gets or sets the LoginId.
+        /// Gets or sets the Username.
         /// </summary>
         [Key]
-        public string LoginId { get; set; }
+        public string Username { get; set; }
 
         /// <summary>
         /// Gets or sets the Email.
@@ -59,7 +60,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether IsActive.
         /// </summary>
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the LogoutAt.
@@ -69,7 +70,7 @@
         /// <summary>
         /// Gets or sets the ProfileImg.
         /// </summary>
-        public string ProfileImg { get; set; }
+        public string ProfileImage { get; set; }
 
         /// <summary>
         /// Gets or sets the Status.

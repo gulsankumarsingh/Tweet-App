@@ -11,8 +11,9 @@
         public string Password { get; set; }
 
         /// <summary>
-        /// Gets or sets the ContactNumber.
+        /// Gets or sets the Email.
         /// </summary>
+        public string Email { get; set; }
         public long ContactNumber { get; set; }
     }
 }

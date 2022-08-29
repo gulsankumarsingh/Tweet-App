@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: processpensionmodule-deployment
+  labels:
+    app: processpensionmodule
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: processpensionmodule
+  template:
+    metadata:
+      labels:
+        app: processpensionmodule
+    spec:
+      containers:
+        - name: processpensionmodule
+          image: acrpensionmanagement.azurecr.io/processpensionmodule:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: PensionerDetailAPIURL
+              valueFrom:
+                configMapKeyRef:
+                  name: pensionerdetailmodule-configmap
+                  key: pensionerdetailmodule_url
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "0.1"
+            limits:
+              memory: "128Mi"
+              cpu: "0.3"
+      imagePullSecrets:
+        - name: acr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: processpensionmodule-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: processpensionmodule
+  ports:
+    - protocol: TCP
+      port: 80

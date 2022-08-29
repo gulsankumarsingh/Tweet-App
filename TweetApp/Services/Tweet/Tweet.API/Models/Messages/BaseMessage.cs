@@ -8,13 +8,13 @@
     public class BaseMessage
     {
         /// <summary>
-        /// Gets or sets the Id.
+        /// Gets or sets the QueueId.
         /// </summary>
-        public int Id { get; set; }
+        public string QueueId { get; set; } = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Gets or sets the MessageCreated.
         /// </summary>
-        public DateTime MessageCreated { get; set; }
+        public DateTime MessageCreated { get; set; } = DateTime.Now;
     }
 }

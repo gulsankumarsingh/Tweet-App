@@ -15,7 +15,8 @@
         public ConfigureAutomapper()
         {
             CreateMap<TweetDetail, TweetDto>().ReverseMap();
-            CreateMap<Comment, CommentDto>().ReverseMap();
+            CreateMap<Reply, ReplyDto>().ReverseMap();
+            CreateMap<Like, LikeDto>().ReverseMap();
         }
     }
 }

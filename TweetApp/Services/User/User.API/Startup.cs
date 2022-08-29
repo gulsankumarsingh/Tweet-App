@@ -1,18 +1,23 @@
 namespace User.API
 {
+    using HealthChecks.UI.Client;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Options;
     using Microsoft.IdentityModel.Tokens;
+    using Prometheus;
     using Swashbuckle.AspNetCore.SwaggerGen;
     using System;
     using System.Text;
+    using User.API.Infrastructure.Configurations.AzureBusConfig;
     using User.API.Infrastructure.Configurations.RabitMqConfig;
     using User.API.Infrastructure.DataContext;
     using User.API.Infrastructure.Filters;
@@ -20,6 +25,8 @@ namespace User.API
     using User.API.Infrastructure.Repository.Interface;
     using User.API.Infrastructure.Services.AuthenticationService;
     using User.API.Infrastructure.Services.AuthenticationService.Interfaces;
+    using User.API.Infrastructure.Services.AzureServiceBusSender;
+    using User.API.Infrastructure.Services.AzureServiceBusSender.Interface;
     using User.API.Infrastructure.Services.MessageSenderService;
     using User.API.Infrastructure.Services.MessageSenderService.Interface;
     using User.API.Models;
@@ -52,21 +59,32 @@ namespace User.API
         /// <param name="services">The services<see cref="IServiceCollection"/>.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHealthChecks();
             services.AddOptions();
 
             var rabbitMqConfig = Configuration.GetSection("RabbitMq");
             services.Configure<RabbitMqConfiguration>(rabbitMqConfig);
 
+            var azureBusConfig = Configuration.GetSection("AzureBusConfiguration");
+            services.Configure<AzureBusConfiguration>(azureBusConfig);
+
             services.AddControllers(options => options.Filters.Add(typeof(HttpGlobalExceptionFilter)));
-            services.AddDbContext<UserDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            //Comment below line in case of local run
+            services.AddDbContext<UserDbContext>(options => 
+                options.UseCosmos(Configuration["CosmosConfiguration:CosmosEndPoint"], 
+                    Configuration["CosmosConfiguration:CosmosKey"], 
+                    Configuration["CosmosConfiguration:Database"]));
+
+            //Uncomment below line in case of local run
+            //services.AddDbContext<UserDbContext>(options =>
+            //    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IJwtAuthentication, JwtAuthentication>();
             
             services.AddSingleton<IMessageSender, MessageSender>();
-            
+            services.AddSingleton<IDeleteUserMessageSender, DeleteUserMessageSender>();
+
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = true;
@@ -109,6 +127,10 @@ namespace User.API
                 .AllowAnyHeader()
                 );
             });
+
+            services.AddHealthChecks()
+                .AddSqlServer(Configuration.GetConnectionString("DefaultConnection"), null, "Sql Server Health Check", HealthStatus.Degraded)
+                .AddRabbitMQ($"amqp://{Configuration["RabbitMq:HostName"]}:5672", null, "RabbitMq Health Check", HealthStatus.Degraded);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -126,7 +148,10 @@ namespace User.API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "UserService.API v1"));
             }
 
+            //app.UseMetricServer();
             app.UseRouting();
+            app.UseHttpMetrics();
+
 
             app.UseCors("CorsPolicy");
 
@@ -136,6 +161,12 @@ namespace User.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/healthcheck", new HealthCheckOptions()
+                {
+                    Predicate = _ => true,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+                endpoints.MapMetrics();
             });
         }
     }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     /// <summary>
     /// Defines the <see cref="TweetDetail" />.
@@ -12,7 +13,8 @@
         /// Gets or sets the Id.
         /// </summary>
         [Key]
-        public int Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the Message.
@@ -22,10 +24,14 @@
         public string Message { get; set; }
 
         /// <summary>
-        /// Gets or sets the TweetTime.
+        /// Gets or sets the CreatedAt.
         /// </summary>
         [Required]
-        public DateTime TweetTime { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        /// <summary>
+        /// Gets or sets the UpdatedAt.
+        /// </summary>
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         /// <summary>
         /// Gets or sets the UserName.

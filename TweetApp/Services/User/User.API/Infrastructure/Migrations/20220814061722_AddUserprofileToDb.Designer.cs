@@ -10,8 +10,8 @@ using User.API.Infrastructure.DataContext;
 namespace User.API.Infrastructure.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20220726132637_AddUserProfileTbl")]
-    partial class AddUserProfileTbl
+    [Migration("20220814061722_AddUserprofileToDb")]
+    partial class AddUserprofileToDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,7 +23,7 @@ namespace User.API.Infrastructure.Migrations
 
             modelBuilder.Entity("User.API.Models.UserProfile", b =>
                 {
-                    b.Property<string>("LoginId")
+                    b.Property<string>("Username")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<long>("ContactNumber")
@@ -58,13 +58,13 @@ namespace User.API.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProfileImg")
+                    b.Property<string>("ProfileImage")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("LoginId");
+                    b.HasKey("Username");
 
                     b.ToTable("UserProfiles");
                 });

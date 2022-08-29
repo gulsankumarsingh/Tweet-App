@@ -1,4 +1,7 @@
-﻿namespace User.API.Models.Dtos
+﻿using Microsoft.AspNetCore.Http;
+using System;
+
+namespace User.API.Models.Dtos
 {
     /// <summary>
     /// Defines the <see cref="UserDto" />.
@@ -6,19 +9,18 @@
     public class UserDto
     {
         /// <summary>
-        /// Gets or sets the FirstName.
+        /// Gets or sets the FullName.
         /// </summary>
-        public string FirstName { get; set; }
+        public string FullName { get; set; }
 
         /// <summary>
-        /// Gets or sets the LastName.
+        /// Gets or sets the Username.
         /// </summary>
-        public string LastName { get; set; }
-
+        public string Username { get; set; }
         /// <summary>
-        /// Gets or sets the LoginId.
+        /// Gets or sets the Email.
         /// </summary>
-        public string LoginId { get; set; }
+        public string Email { get; set; }
 
         /// <summary>
         /// Gets or sets the Status.
@@ -28,6 +30,15 @@
         /// <summary>
         /// Gets or sets the ProfileImg.
         /// </summary>
-        public string ProfileImg { get; set; }
+        public string ProfileImage { get; set; }
+        /// <summary>
+        /// Gets or sets the IsActive.
+        /// </summary>
+        public bool IsActive { get; set; }
+
+        /// <summary>
+        /// Gets or sets the LogoutAt.
+        /// </summary>
+        public DateTime LogoutAt { get; set; }
     }
 }

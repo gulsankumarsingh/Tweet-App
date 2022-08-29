@@ -11,7 +11,7 @@
         /// Gets or sets the UserName.
         /// </summary>
         [Required]
-        public string UserName { get; set; }
+        public string Email { get; set; }
 
         /// <summary>
         /// Gets or sets the Password.

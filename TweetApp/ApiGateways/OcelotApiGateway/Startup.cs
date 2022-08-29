@@ -48,6 +48,16 @@ namespace OcelotApiGateway
                 };
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder => builder
+                .SetIsOriginAllowed((host) => true)
+                .AllowAnyMethod()
+                .AllowCredentials()
+                .AllowAnyHeader()
+                );
+            });
+
             services.AddOcelot();
         }
 
@@ -58,6 +68,7 @@ namespace OcelotApiGateway
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseCors("CorsPolicy");
 
             await app.UseOcelot();
         }

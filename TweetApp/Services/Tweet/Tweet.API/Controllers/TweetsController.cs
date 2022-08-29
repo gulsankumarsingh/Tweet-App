@@ -8,6 +8,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Tweet.API.Infrastructure.ActionResults;
     using Tweet.API.Infrastructure.Repository.Interface;
     using Tweet.API.Models;
     using Tweet.API.Models.Dtos;
@@ -55,15 +56,73 @@
         /// <returns>The All tweets.</returns>
         [Route("all")]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TweetDto>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TweetInfoDto>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<TweetDto>>> GetAllTweetsAsync()
+        public async Task<ActionResult<List<TweetInfoDto>>> GetAllTweetsAsync()
         {
-            _logger.LogInformation("GetAllTweetsAsync method started...");
-            List<TweetDetail> tweets = await _tweetRepository.GetAllTweetsAsync();
-            List<TweetDto> tweetDtos = _mapper.Map<List<TweetDto>>(tweets);
-            return Ok(tweetDtos);
+            try
+            {
+                _logger.LogInformation("GetAllTweetsAsync method started...");
+                List<TweetDetail> tweets = await _tweetRepository.GetAllTweetsAsync();
+                List<TweetDto> tweetDtos = _mapper.Map<List<TweetDto>>(tweets);
+                List<TweetInfoDto> tweetInfoDtos = new List<TweetInfoDto>();
+                foreach (TweetDto tweet in tweetDtos)
+                {
+                    tweetInfoDtos.Add(new TweetInfoDto()
+                    {
+                        Tweet = tweet,
+                        Likes = _mapper.Map<List<LikeDto>>(await _tweetRepository.GetTweetLikesAsync(tweet.Id)),
+                        Comments = _mapper.Map<List<ReplyDto>>(await _tweetRepository.GetAllReplyByTweetIdAsync(tweet.Id))
+                    });
+                }
+                return Ok(tweetInfoDtos);
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError($"An error occured while getting all the tweets", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+            }
+            
+        }
+
+        /// <summary>
+        /// Method for Get Tweets By User name.
+        /// </summary>
+        /// <param name="tweetId">The tweetId.</param>
+        /// <returns>The Tweet by tweet Id.</returns>
+        [Route("get/{tweetId}")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TweetInfoDto))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<TweetInfoDto>> GetTweetByTweetIdAsync([FromRoute] string tweetId)
+        {
+            try
+            {
+                _logger.LogInformation("GetTweetByTweetIdAsync method started...");
+                TweetDetail tweet = await _tweetRepository.GetTweetsByIdAsync(tweetId);
+                if (tweet == null)
+                {
+                    return NotFound(new ApiResponse { Status = "Error", Message = "Tweet not found" });
+                }
+                TweetInfoDto tweetInfo = new TweetInfoDto
+                {
+                    Tweet = _mapper.Map<TweetDto>(tweet),
+                    Likes = _mapper.Map<List<LikeDto>>(await _tweetRepository.GetTweetLikesAsync(tweet.Id)),
+                    Comments = _mapper.Map<List<ReplyDto>>(await _tweetRepository.GetAllReplyByTweetIdAsync(tweet.Id))
+                };
+                return Ok(tweetInfo);
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError($"An error occured while getting tweet for id: {tweetId}", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+            }
+           
         }
 
         /// <summary>
@@ -73,16 +132,36 @@
         /// <returns>The Tweet by username.</returns>
         [Route("{username}/all")]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TweetDto>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TweetInfoDto>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<TweetDto>>> GetTweetsByUserAsync([FromRoute] string username)
+        public async Task<ActionResult<List<TweetInfoDto>>> GetTweetsByUserAsync([FromRoute] string username)
         {
-            _logger.LogInformation("GetTweetsByUserAsync method started...");
-            List<TweetDetail> tweets = await _tweetRepository.GetTweetsByUserAsync(username);
-            List<TweetDto> tweetDtos = _mapper.Map<List<TweetDto>>(tweets);
-            return Ok(tweetDtos);
+            try
+            {
+                _logger.LogInformation("GetTweetsByUserAsync method started...");
+                List<TweetDetail> tweets = await _tweetRepository.GetTweetsByUserAsync(username);
+                List<TweetDto> tweetDtos = _mapper.Map<List<TweetDto>>(tweets);
+                List<TweetInfoDto> tweetInfoDtos = new List<TweetInfoDto>();
+                foreach (TweetDto tweet in tweetDtos)
+                {
+                    tweetInfoDtos.Add(new TweetInfoDto()
+                    {
+                        Tweet = tweet,
+                        Likes = _mapper.Map<List<LikeDto>>(await _tweetRepository.GetTweetLikesAsync(tweet.Id)),
+                        Comments = _mapper.Map<List<ReplyDto>>(await _tweetRepository.GetAllReplyByTweetIdAsync(tweet.Id))
+                    });
+                }
+                return Ok(tweetInfoDtos);
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError($"An error occured while getting tweet by username for user: {username}", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+            }
+            
         }
 
         /// <summary>
@@ -99,17 +178,17 @@
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ApiResponse>> AddTweetAsync([FromRoute] string username, [FromBody] MessageDto createTweetDto)
         {
-            _logger.LogInformation("AddTweetAsync method started...");
-            ApiResponse response;
-            TweetDetail tweetDetail = new TweetDetail
+            try
             {
-                UserName = username,
-                Message = createTweetDto.Message
-            };
-            bool isTweetAdded = await _tweetRepository.AddTweetAsync(tweetDetail);
+                _logger.LogInformation("AddTweetAsync method started...");
+                ApiResponse response;
+                TweetDetail tweetDetail = new TweetDetail
+                {
+                    UserName = username,
+                    Message = createTweetDto.Message
+                };
+                await _tweetRepository.AddTweetAsync(tweetDetail);
 
-            if (isTweetAdded)
-            {
                 _logger.LogInformation($"Tweet added successfully", tweetDetail);
                 response = new ApiResponse
                 {
@@ -118,16 +197,13 @@
                 };
                 return Ok(response);
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogInformation($"Tweet add operation failed", tweetDetail);
-                response = new ApiResponse
-                {
-                    Status = "Error",
-                    Message = "Something went wrong! Please try again"
-                };
-                return BadRequest(response);
+
+                _logger.LogError($"An error occured while adding the tweet for user: {username}", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
+            
         }
 
         /// <summary>
@@ -143,60 +219,57 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ApiResponse>> UpdateTweetAsync([FromRoute] string username, [FromRoute] int tweetId, [FromBody] MessageDto messageDto)
+        public async Task<ActionResult<ApiResponse>> UpdateTweetAsync([FromRoute] string username, [FromRoute] string tweetId, [FromBody] MessageDto messageDto)
         {
-            _logger.LogInformation("UpdateTweetAsync method started...");
-            ApiResponse response;
-
-            TweetDetail tweet = await _tweetRepository.GetTweetsByIdAsync(tweetId);
-
-            if (tweet == null)
+            try
             {
-                _logger.LogError($"Tweet not found for tweet id: {tweetId}");
-                response = new ApiResponse
+                _logger.LogInformation("UpdateTweetAsync method started...");
+                ApiResponse response;
+
+                TweetDetail tweet = await _tweetRepository.GetTweetsByIdAsync(tweetId);
+
+                if (tweet == null)
                 {
-                    Status = "Error",
-                    Message = "Tweet Not Found!"
-                };
+                    _logger.LogError($"Tweet not found for tweet id: {tweetId}");
+                    response = new ApiResponse
+                    {
+                        Status = "Error",
+                        Message = "Tweet Not Found!"
+                    };
 
-                return NotFound(response);
-            }
-            else if (tweet.UserName != username)
-            {
-                _logger.LogError($"{username} doesn't have sufficient permission to modify the tweet", tweet);
-                response = new ApiResponse
+                    return NotFound(response);
+                }
+                else if (tweet.UserName != username)
                 {
-                    Status = "Error",
-                    Message = $"{username} doesn't have sufficient permission to modify the tweet"
-                };
-                return Unauthorized(response);
-            }
+                    _logger.LogError($"{username} doesn't have sufficient permission to modify the tweet", tweet);
+                    response = new ApiResponse
+                    {
+                        Status = "Error",
+                        Message = $"{username} doesn't have sufficient permission to modify the tweet"
+                    };
+                    return Unauthorized(response);
+                }
 
-            tweet.Message = messageDto.Message;
+                tweet.Message = messageDto.Message;
+                tweet.UpdatedAt = DateTime.Now;
 
-            bool isTweetUpdated = await _tweetRepository.UpdateTweetAsync(tweet);
+                await _tweetRepository.UpdateTweetAsync(tweet);
 
-            if (isTweetUpdated)
-            {
                 _logger.LogInformation("Tweet updated successfully.", tweet);
                 response = new ApiResponse
                 {
                     Status = "Success",
                     Message = "Tweet update Successful"
                 };
-                return Ok(response);
+                return Ok(response); 
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError("Tweet update update operation failed", tweet);
 
-                response = new ApiResponse
-                {
-                    Status = "Error",
-                    Message = "Something went wrong! Please try again"
-                };
-                return BadRequest(response);
+                _logger.LogError($"An error occured while updating the tweet for user: {username} by id: {tweetId}", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
+            
         }
 
         /// <summary>
@@ -211,38 +284,38 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ApiResponse>> DeleteTweetAsync([FromRoute] string username, [FromRoute] int tweetId)
+        public async Task<ActionResult<ApiResponse>> DeleteTweetAsync([FromRoute] string username, [FromRoute] string tweetId)
         {
-            _logger.LogInformation("DeleteTweetAsync method started...");
-            ApiResponse response;
-            TweetDetail tweet = await _tweetRepository.GetTweetsByIdAsync(tweetId);
-
-            if (tweet == null)
+            try
             {
-                _logger.LogError("Tweet not found");
-                response = new ApiResponse
+                _logger.LogInformation("DeleteTweetAsync method started...");
+                ApiResponse response;
+                TweetDetail tweet = await _tweetRepository.GetTweetsByIdAsync(tweetId);
+
+                if (tweet == null)
                 {
-                    Status = "Error",
-                    Message = "Tweet Not Found!"
-                };
+                    _logger.LogError("Tweet not found");
+                    response = new ApiResponse
+                    {
+                        Status = "Error",
+                        Message = "Tweet Not Found!"
+                    };
 
-                return NotFound(response);
-            }
-            else if (tweet.UserName != username)
-            {
-                _logger.LogError($"{username} doesn't have sufficient permission to delete the tweet", tweet);
-                response = new ApiResponse
+                    return NotFound(response);
+                }
+                else if (tweet.UserName != username)
                 {
-                    Status = "Error",
-                    Message = $"{username} doesn't have sufficient permission to modify the tweet"
-                };
-                return Unauthorized(response);
-            }
+                    _logger.LogError($"{username} doesn't have sufficient permission to delete the tweet", tweet);
+                    response = new ApiResponse
+                    {
+                        Status = "Error",
+                        Message = $"{username} doesn't have sufficient permission to modify the tweet"
+                    };
+                    return Unauthorized(response);
+                }
 
-            bool isTweetAdded = await _tweetRepository.DeleteTweetAsync(tweet);
+                await _tweetRepository.DeleteTweetAsync(tweet);
 
-            if (isTweetAdded)
-            {
                 _logger.LogInformation($"{username} deleted tweet with tweet id : {tweet.Id}");
                 response = new ApiResponse
                 {
@@ -250,43 +323,20 @@
                     Message = "Tweet deleted Successful"
                 };
                 return Ok(response);
+         
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError($"{username} deleted tweet operation with tweet id : {tweet.Id} failed.");
-                response = new ApiResponse
-                {
-                    Status = "Error",
-                    Message = "Something went wrong! Please try again"
-                };
-                return BadRequest(response);
+                _logger.LogError($"An error occured while deleting the tweet for user: {username} by id: {tweetId}", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
-        }
-
-        /// <summary>
-        /// Method for get the total likes count
-        /// </summary>
-        /// <param name="tweetId">Tweet id</param>
-        /// <returns>Total likes count</returns>
-        [Route("likes/count/{tweetId}")]
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<int>> TotalLikeOnTweetAsync([FromRoute] int tweetId)
-        {
-            _logger.LogInformation("TotalLikeOnTweetAsync method started...");
-            int likesCount = await _tweetRepository.GetTotalLikesAsync(tweetId);
-
-            return Ok(likesCount);
 
         }
 
         /// <summary>
         /// Method for Liking a Tweet
         /// </summary>
-        /// <param name="tweetId">The tweetId<see cref="int"/>.</param>
+        /// <param name="tweetId">The tweetId<see cref="string"/>.</param>
         /// <param name="username">The username<see cref="string"/>.</param>
         /// <returns>The Api response with status and message</returns>
         [Route("{username}/like/{tweetId}")]
@@ -295,49 +345,46 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ApiResponse>> LikeTweetAsync([FromRoute] int tweetId, [FromRoute] string username)
+        public async Task<ActionResult<ApiResponse>> LikeTweetAsync([FromRoute] string tweetId, [FromRoute] string username)
         {
-            _logger.LogInformation("LikeTweetAsync method started...");
-            ApiResponse response;
-            TweetDetail tweet = await _tweetRepository.GetTweetsByIdAsync(tweetId);
-
-            if (tweet == null)
+            try
             {
-                _logger.LogError($"Tweet not found with tweet id {tweetId}");
-                response = new ApiResponse
+                _logger.LogInformation("LikeTweetAsync method started...");
+                ApiResponse response;
+                TweetDetail tweet = await _tweetRepository.GetTweetsByIdAsync(tweetId);
+
+                if (tweet == null)
                 {
-                    Status = "Error",
-                    Message = "Tweet Not Found!"
-                };
+                    _logger.LogError($"Tweet not found with tweet id {tweetId}");
+                    response = new ApiResponse
+                    {
+                        Status = "Error",
+                        Message = "Tweet Not Found!"
+                    };
 
-                return NotFound(response);
-            }
-            Like likeTweet = new Like
-            {
-                TweetId = tweetId,
-                UserName = username
-            };
-            bool isTweetLiked = await _tweetRepository.LikeATweetAsync(likeTweet);
-            if (isTweetLiked)
-            {
+                    return NotFound(response);
+                }
+                Like likeTweet = new Like
+                {
+                    TweetId = tweetId,
+                    UserName = username
+                };
+                await _tweetRepository.LikeATweetAsync(likeTweet);
+
                 _logger.LogInformation($"Tweet liked successfully for tweet id : {tweet.Id} by user : {username}.");
                 response = new ApiResponse
                 {
                     Status = "Success",
                     Message = "Tweet liked successful"
                 };
-                return Ok(response);
+                return Ok(response); 
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError($"Tweet liking operation failed for tweet id : {tweet.Id} by user : {username}.");
-                response = new ApiResponse
-                {
-                    Status = "Error",
-                    Message = "Something went wrong! Please try again"
-                };
-                return BadRequest(response);
+                _logger.LogError($"An error occured while liking the tweet for user: {username} by id: {tweetId}", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
+            
             
         }
 
@@ -353,27 +400,27 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ApiResponse>> UnlikeTweetAsync([FromRoute] int tweetId, [FromRoute] string username)
+        public async Task<ActionResult<ApiResponse>> UnlikeTweetAsync([FromRoute] string tweetId, [FromRoute] string username)
         {
-            _logger.LogInformation("UnlikeTweetAsync method started...");
-            ApiResponse response;
-            Like disLike = await _tweetRepository.GetLikesByUserNameAsync(tweetId, username);
-
-            if (disLike == null)
+            try
             {
-                _logger.LogError($"No like record found for tweet id: {tweetId}");
-                response = new ApiResponse
+                _logger.LogInformation("UnlikeTweetAsync method started...");
+                ApiResponse response;
+                Like disLike = await _tweetRepository.GetLikesByUserNameAsync(tweetId, username);
+
+                if (disLike == null)
                 {
-                    Status = "Error",
-                    Message = "Tweet Not Found!"
-                };
-                return NotFound(response);
-            }
+                    _logger.LogError($"No like record found for tweet id: {tweetId}");
+                    response = new ApiResponse
+                    {
+                        Status = "Error",
+                        Message = "Tweet Not Found!"
+                    };
+                    return NotFound(response);
+                }
 
-            bool isDisliked = await _tweetRepository.UnlikeATweetAsync(disLike);
+                await _tweetRepository.UnlikeATweetAsync(disLike);
 
-            if (isDisliked)
-            {
                 _logger.LogInformation($"Unlike operation successful for tweet id: {tweetId} by user: {username}");
                 response = new ApiResponse
                 {
@@ -381,18 +428,15 @@
                     Message = "Tweet dislike successful."
                 };
                 return Ok(response);
+     
+                
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError($"Tweet unliking operation failed for tweet id : {tweetId} by user : {username}.");
-
-                response = new ApiResponse
-                {
-                    Status = "Error",
-                    Message = "Something went wrong! Please try again"
-                };
-                return BadRequest(response);
+                _logger.LogError($"An error occured while unliking the tweet for user: {username} by id: {tweetId}", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
+
         }
 
         /// <summary>
@@ -400,7 +444,7 @@
         /// </summary>
         /// <param name="tweetId">The tweetId</param>
         /// <param name="username">The username</param>
-        /// <param name="commentDto">The reply information</param>
+        /// <param name="messgaeDto">The reply information</param>
         /// <returns>The Api response with status and message</returns>
         [Route("{username}/reply/{tweetId}")]
         [HttpPost]
@@ -408,51 +452,151 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ApiResponse>> ReplyToTweetAsync([FromRoute] int tweetId, [FromRoute] string username,
-                [FromBody] MessageDto commentDto)
+        public async Task<ActionResult<ApiResponse>> ReplyToTweetAsync([FromRoute] string tweetId, [FromRoute] string username,
+                [FromBody] MessageDto messgaeDto)
         {
-            _logger.LogInformation("ReplyToTweetAsync method started...");
-            ApiResponse response;
-            TweetDetail tweet = await _tweetRepository.GetTweetsByIdAsync(tweetId);
-
-            if (tweet == null)
+            try
             {
-                _logger.LogError($"Tweet not found for tweet id: {tweetId} by user: {username}");
-                response = new ApiResponse
+                _logger.LogInformation("ReplyToTweetAsync method started...");
+                ApiResponse response;
+                TweetDetail tweet = await _tweetRepository.GetTweetsByIdAsync(tweetId);
+
+                if (tweet == null)
                 {
-                    Status = "Error",
-                    Message = "Tweet Not Found!"
-                };
+                    _logger.LogError($"Tweet not found for tweet id: {tweetId} by user: {username}");
+                    response = new ApiResponse
+                    {
+                        Status = "Error",
+                        Message = "Tweet Not Found!"
+                    };
 
-                return NotFound(response);
-            }
-            Comment comment = new Comment
-            {
-                TweetId = tweetId,
-                Message = commentDto.Message,
-                UserName = username
-            };
-            bool isCommented = await _tweetRepository.AddCommentAsync(comment);
-            if (isCommented)
-            {
+                    return NotFound(response);
+                }
+                Reply comment = new Reply
+                {
+                    TweetId = tweetId,
+                    Message = messgaeDto.Message,
+                    UserName = username
+                };
+                await _tweetRepository.AddReplyAsync(comment);
+
                 _logger.LogInformation($"Added reply for tweet id: {tweetId} by user: {username}");
                 response = new ApiResponse
                 {
                     Status = "Success",
                     Message = "Comment Added"
                 };
-                return Ok(response);
+                return Ok(response); 
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError($"Adding reply operation failed for tweet id : {tweetId} by user : {username}.");
+                _logger.LogError($"An error occured while adding the reply for the tweet for user: {username} by id: {tweetId}", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+            }
+            
+        }
+
+        /// <summary>
+        /// Method for Updating the Reply to a Tweet
+        /// </summary>
+        /// <param name="replyId">The replyId</param>
+        /// <param name="username">The username</param>
+        /// <param name="messageDto">The reply information</param>
+        /// <returns>The Api response with status and message</returns>
+        [Route("{username}/reply/update/{replyId}")]
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse>> UpdateReplyToTweetAsync([FromRoute] string replyId, [FromRoute] string username,
+                [FromBody] MessageDto messageDto)
+        {
+            try
+            {
+                _logger.LogInformation("UpdateReplyToTweetAsync method started...");
+                ApiResponse response;
+                Reply reply = await _tweetRepository.GetReplyByIdAsync(replyId);
+
+                if (reply == null)
+                {
+                    _logger.LogError($"Reply not found for reply id: {replyId} by user: {username}");
+                    response = new ApiResponse
+                    {
+                        Status = "Error",
+                        Message = "Reply Not Found!"
+                    };
+
+                    return NotFound(response);
+                }
+                reply.Message = messageDto.Message;
+                reply.UpdatedAt = DateTime.Now;
+                await _tweetRepository.UpdateReplyAsync(reply);
+
+                _logger.LogInformation($"Updated reply for reply id: {replyId} by user: {username}");
                 response = new ApiResponse
                 {
-                    Status = "Error",
-                    Message = "Something went wrong! Please try again"
+                    Status = "Success",
+                    Message = "Reply Updated"
                 };
-                return BadRequest(response);
+                return Ok(response);
+           
             }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occured while updating the reply for the tweet for user: {username} by id: {replyId}", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+            }
+            
+        }
+
+        /// <summary>
+        /// Method for Reply to a Tweet
+        /// </summary>
+        /// <param name="replyId">The replyId</param>
+        /// <param name="username">The username</param>
+        /// <returns>The Api response with status and message</returns>
+        [Route("{username}/reply/delete/{replyId}")]
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse>> DeleteReplyToTweetAsync([FromRoute] string replyId, [FromRoute] string username)
+        {
+            try
+            {
+                _logger.LogInformation("DeleteReplyToTweetAsync method started...");
+                ApiResponse response;
+                Reply reply = await _tweetRepository.GetReplyByIdAsync(replyId);
+
+                if (reply == null)
+                {
+                    _logger.LogError($"Reply not found for reply id: {replyId} by user: {username}");
+                    response = new ApiResponse
+                    {
+                        Status = "Error",
+                        Message = "Reply Not Found!"
+                    };
+
+                    return NotFound(response);
+                }
+                await _tweetRepository.DeleteReplyAsync(reply);
+
+                _logger.LogInformation($"Deleted reply for reply id: {replyId} by user: {username}");
+                response = new ApiResponse
+                {
+                    Status = "Success",
+                    Message = "Reply Deleted"
+                };
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occured while deleting the reply for the tweet for user: {username} by id: {replyId}", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+            }
+            
         }
 
         /// <summary>
@@ -466,47 +610,56 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ApiResponse>> GetAllReplyAsync([FromRoute] int tweetId)
+        public async Task<ActionResult<ApiResponse>> GetAllReplyAsync([FromRoute] string tweetId)
         {
-            _logger.LogInformation("GetAllReplyAsync method started...");
-            ApiResponse response;
-            TweetDetail tweet = await _tweetRepository.GetTweetsByIdAsync(tweetId);
-
-            if (tweet == null)
+            try
             {
-                _logger.LogError($"Tweet not found for tweet id: {tweetId}");
-                response = new ApiResponse
-                {
-                    Status = "Error",
-                    Message = "Tweet Not Found!"
-                };
+                _logger.LogInformation("GetAllReplyAsync method started...");
+                ApiResponse response;
+                TweetDetail tweet = await _tweetRepository.GetTweetsByIdAsync(tweetId);
 
-                return NotFound(response);
-            }
+                if (tweet == null)
+                {
+                    _logger.LogError($"Tweet not found for tweet id: {tweetId}");
+                    response = new ApiResponse
+                    {
+                        Status = "Error",
+                        Message = "Tweet Not Found!"
+                    };
 
-            List<Comment> comments = await _tweetRepository.GetCommentsAsync(tweetId);
-            if (comments == null)
-            {
-                _logger.LogInformation($"No comment found for tweet id : {tweetId}");
-                response = new ApiResponse
+                    return NotFound(response);
+                }
+
+                List<Reply> comments = await _tweetRepository.GetAllReplyByTweetIdAsync(tweetId);
+                if (comments.Count == 0)
                 {
-                    Status = "Error",
-                    Message = "No comments available"
-                };
-                return NotFound(response);
-            }
-            else
-            {
-                _logger.LogInformation($"Comment found for tweet id : {tweetId}");
-                List<CommentDto> commentDtos = _mapper.Map<List<CommentDto>>(comments);
-                response = new ApiResponse
+                    _logger.LogInformation($"No comment found for tweet id : {tweetId}");
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "No comments available"
+                    };
+                    return Ok(response);
+                }
+                else
                 {
-                    Status = "Success",
-                    Message = "Comment found",
-                    ResponseValue = commentDtos
-                };
-                return Ok(response);
+                    _logger.LogInformation($"Comment found for tweet id : {tweetId}");
+                    List<ReplyDto> commentDtos = _mapper.Map<List<ReplyDto>>(comments);
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Comment found",
+                        ResponseValue = commentDtos
+                    };
+                    return Ok(response);
+                }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occured while getting all the reply by tweet id : {tweetId}", ex.Message);
+                return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+            }
+            
         }
     }
 }

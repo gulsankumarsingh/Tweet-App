@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="tweetId">The tweetId<see cref="int"/>.</param>
         /// <returns>The tweet</returns>
-        public Task<TweetDetail> GetTweetsByIdAsync(int tweetId);
+        public Task<TweetDetail> GetTweetsByIdAsync(string tweetId);
 
         /// <summary>
         /// The AddTweetAsync.
@@ -62,14 +62,7 @@
         /// </summary>
         /// <param name="tweetId">The tweetId<see cref="int"/>.</param>
         /// <returns>the list of like detail</returns>
-        public Task<List<Like>> GetTweetLikesAsync(int tweetId);
-
-        /// <summary>
-        /// The GetTotalLikesAsync
-        /// </summary>
-        /// <param name="tweetId">The tweet id</param>
-        /// <returns>Total like count</returns>
-        public Task<int> GetTotalLikesAsync(int tweetId);
+        public Task<List<Like>> GetTweetLikesAsync(string tweetId);
 
         /// <summary>
         /// The GetLikesByUserNameAsync.
@@ -77,7 +70,7 @@
         /// <param name="tweetId">The tweetId<see cref="int"/>.</param>
         /// <param name="username">The username<see cref="string"/>.</param>
         /// <returns>the like detail</returns>
-        public Task<Like> GetLikesByUserNameAsync(int tweetId, string username);
+        public Task<Like> GetLikesByUserNameAsync(string tweetId, string username);
 
         /// <summary>
         /// The LikeATweetAsync.
@@ -94,18 +87,50 @@
         public Task<bool> UnlikeATweetAsync(Like tweet);
 
         /// <summary>
-        /// The GetCommentsAsync.
+        /// The UnlikeATweetAsync.
+        /// </summary>
+        /// <param name="username">The username<see cref="string"/>.</param>
+        /// <returns>The true if unliked else false</returns>
+        public Task<bool> DeleteLikeByUsernameAsync(string username);
+
+        /// <summary>
+        /// The GetAllReplyByTweetIdAsync.
         /// </summary>
         /// <param name="tweetId">The tweetId<see cref="int"/>.</param>
         /// <returns>The list of comments</returns>
-        public Task<List<Comment>> GetCommentsAsync(int tweetId);
+        public Task<List<Reply>> GetAllReplyByTweetIdAsync(string tweetId);
+        /// <summary>
+        /// The GetReplyByIdAsync.
+        /// </summary>
+        /// <param name="id">The tweetId<see cref="int"/>.</param>
+        /// <returns>The list of comments</returns>
+        public Task<Reply> GetReplyByIdAsync(string id);
 
         /// <summary>
-        /// The AddCommentAsync.
+        /// The AddReplyAsync.
         /// </summary>
-        /// <param name="comment">The comment<see cref="Comment"/>.</param>
+        /// <param name="reply">The reply<see cref="Reply"/>.</param>
         /// <returns>true if comment added else false</returns>
-        public Task<bool> AddCommentAsync(Comment comment);
+        public Task<bool> AddReplyAsync(Reply reply);
+        /// <summary>
+        /// The UpdateReplyAsync.
+        /// </summary>
+        /// <param name="reply">The reply<see cref="Reply"/>.</param>
+        /// <returns>true if comment added else false</returns>
+        Task<bool> UpdateReplyAsync(Reply reply);
+        /// <summary>
+        /// The DeleteReplyAsync.
+        /// </summary>
+        /// <param name="reply">The reply<see cref="Reply"/>.</param>
+        /// <returns>true if comment added else false</returns>
+        Task<bool> DeleteReplyAsync(Reply reply);
+
+        /// <summary>
+        /// The DeleteReplyAsync.
+        /// </summary>
+        /// <param name="username">The username<see cref="string"/>.</param>
+        /// <returns>true if comment added else false</returns>
+        Task<bool> DeleteReplyByUsernameAsync(string username);
 
         /// <summary>
         /// The SaveChangesAsync.

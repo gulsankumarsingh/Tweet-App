@@ -1,19 +1,14 @@
-﻿namespace Tweet.API.Models
+﻿namespace Tweet.API.Models.Dtos
 {
     using System;
     using System.ComponentModel.DataAnnotations;
 
     /// <summary>
-    /// Defines the <see cref="Comment" />.
+    /// Defines the <see cref="ReplyDto" />.
     /// </summary>
-    public class Comment
+    public class ReplyDto
     {
-        /// <summary>
-        /// Gets or sets the Id.
-        /// </summary>
-        [Key]
-        public int Id { get; set; }
-
+        public string Id { get; set; }
         /// <summary>
         /// Gets or sets the Message.
         /// </summary>
@@ -22,21 +17,16 @@
         public string Message { get; set; }
 
         /// <summary>
-        /// Gets or sets the CommentAt.
-        /// </summary>
-        [Required]
-        public DateTime CommentAt { get; set; } = DateTime.UtcNow;
-
-        /// <summary>
         /// Gets or sets the TweetId.
         /// </summary>
         [Required]
-        public int TweetId { get; set; }
+        public string TweetId { get; set; }
 
         /// <summary>
         /// Gets or sets the UserName.
         /// </summary>
         [Required]
         public string UserName { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

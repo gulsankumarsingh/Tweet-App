@@ -8,6 +8,10 @@
     public class TokenDetail
     {
         /// <summary>
+        /// Gets or sets the Username.
+        /// </summary>
+        public string Username { get; set; }
+        /// <summary>
         /// Gets or sets the Token.
         /// </summary>
         public string Token { get; set; }

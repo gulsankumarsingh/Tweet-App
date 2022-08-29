@@ -1,6 +1,8 @@
 ﻿namespace User.API.Models.Dtos
 {
+    using Microsoft.AspNetCore.Http;
     using System;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     /// <summary>
     /// Defines the <see cref="UpdateUserProfileDto" />.
@@ -41,10 +43,7 @@
         /// Gets or sets the Status.
         /// </summary>
         public string Status { get; set; }
-
-        /// <summary>
-        /// Gets or sets the ProfileImg.
-        /// </summary>
-        public string ProfileImg { get; set; }
+        public string ProfileImage { get; set; }
+        public IFormFile ImageFile { get; set; }
     }
 }

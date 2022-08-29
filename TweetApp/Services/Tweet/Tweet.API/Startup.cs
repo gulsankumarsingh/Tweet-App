@@ -1,15 +1,19 @@
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using Prometheus;
 using System.Text;
 using Tweet.API.Infrastructure.Configuration.AutoMapperConfig;
 using Tweet.API.Infrastructure.Configuration.SwaggerConfig;
@@ -19,6 +23,8 @@ using Tweet.API.Infrastructure.Filters;
 using Tweet.API.Infrastructure.Repository;
 using Tweet.API.Infrastructure.Repository.Interface;
 using Tweet.API.Infrastructure.Services.MessageConsumerService;
+using Tweet.API.Infrastructure.Services.AzureServiceBusConsumer;
+using Tweet.API.Infrastructure.Configurations.AzureBusConfig;
 
 namespace Tweet.API
 {
@@ -48,15 +54,26 @@ namespace Tweet.API
         /// <param name="services">The services<see cref="IServiceCollection"/>.</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHealthChecks();
+            
             services.AddOptions();
 
             var rabbitMqConfig = Configuration.GetSection("RabbitMq");
             services.Configure<RabbitMqConfiguration>(rabbitMqConfig);
 
+            var azureBusConfig = Configuration.GetSection("AzureBusConfiguration");
+            services.Configure<AzureBusConfiguration>(azureBusConfig);
+
             services.AddControllers(options => options.Filters.Add(typeof(HttpGlobalExceptionFilter)));
+
+            //Comment below line in case of local run
             services.AddDbContext<TweetDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseCosmos(Configuration["CosmosConfiguration:CosmosEndPoint"],
+                    Configuration["CosmosConfiguration:CosmosKey"],
+                    Configuration["CosmosConfiguration:Database"]));
+
+            //Uncomment below line in case of local run
+            //services.AddDbContext<TweetDbContext>(options =>
+            //    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<ITweetRepository, TweetRepository>();
 
@@ -93,7 +110,7 @@ namespace Tweet.API
                 };
             });
 
-            services.AddCors(options =>
+            services.AddCors(options => 
             {
                 options.AddPolicy("CorsPolicy", builder => builder
                 .SetIsOriginAllowed((host) => true)
@@ -103,7 +120,12 @@ namespace Tweet.API
                 );
             });
 
-            services.AddHostedService<DeleteUserMessageConsumer>();
+            //services.AddHostedService<DeleteUserMessageConsumer>();
+            services.AddHostedService<DeleteUserConsumer>();
+
+            services.AddHealthChecks()
+                .AddSqlServer(Configuration.GetConnectionString("DefaultConnection"), null, "Sql Server Health Check", HealthStatus.Unhealthy)
+                .AddRabbitMQ($"amqp://{Configuration["RabbitMq:HostName"]}:5672", null, "RabbitMq Health Check", HealthStatus.Unhealthy);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -122,6 +144,7 @@ namespace Tweet.API
             }
 
             app.UseRouting();
+            app.UseHttpMetrics();
 
             app.UseCors("CorsPolicy");
 
@@ -131,6 +154,11 @@ namespace Tweet.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/healthcheck", new HealthCheckOptions() {
+                    Predicate = _ => true,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+                endpoints.MapMetrics();
             });
         }
     }

@@ -45,11 +45,11 @@
             List<TweetDetail> tweetList = null;
             try
             {
-                tweetList = await _dbContext.TweetDetails.ToListAsync();
+                tweetList = await _dbContext.TweetDetails.AsNoTracking().OrderByDescending(i => i.UpdatedAt).ToListAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while fetching all tweets!");
+                _logger.LogError("An error occured while fetching all tweets!", ex.Message);
             }
             return tweetList;
         }
@@ -57,18 +57,18 @@
         /// <summary>
         /// The GetTweetsByIdAsync.
         /// </summary>
-        /// <param name="tweetId">The tweetId<see cref="int"/>.</param>
+        /// <param name="tweetId">The tweetId<see cref="string"/>.</param>
         /// <returns>The tweet</returns>
-        public async Task<TweetDetail> GetTweetsByIdAsync(int tweetId)
+        public async Task<TweetDetail> GetTweetsByIdAsync(string tweetId)
         {
             TweetDetail tweets = null;
             try
             {
-                tweets = await _dbContext.TweetDetails.FirstOrDefaultAsync(e => e.Id == tweetId);
+                tweets = await _dbContext.TweetDetails.AsNoTracking().FirstOrDefaultAsync(e => e.Id == tweetId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while fetching tweets by id!");
+                _logger.LogError( "An error occured while fetching tweets by id!", ex.Message);
             }
             return tweets;
         }
@@ -83,11 +83,11 @@
             List<TweetDetail> tweets = null;
             try
             {
-                tweets = await _dbContext.TweetDetails.Where(e => e.UserName == userName).ToListAsync();
+                tweets = await _dbContext.TweetDetails.AsNoTracking().Where(e => e.UserName == userName).OrderByDescending(u => u.UpdatedAt).ToListAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while fetching tweets by username!");
+                _logger.LogError("An error occured while fetching tweets by username!", ex.Message);
             }
             return tweets;
         }
@@ -107,7 +107,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while adding tweet!");
+                _logger.LogError("An error occured while adding tweet!", ex.Message);
             }
             return isTweetAdded;
         }
@@ -122,12 +122,16 @@
             bool isTweetUpdated = false;
             try
             {
-                _dbContext.TweetDetails.Update(tweet);
+                //_dbContext.TweetDetails.Update(tweet);
+                //isTweetUpdated = await SaveChangesAsync();
+                var entry = _dbContext.TweetDetails.Add(tweet);
+                entry.State = EntityState.Unchanged;
+                _dbContext.Update(tweet);
                 isTweetUpdated = await SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while updating tweet!");
+                _logger.LogError("An error occured while updating tweet!", ex.Message);
             }
             return isTweetUpdated;
         }
@@ -142,20 +146,22 @@
             bool isTweetDeleted = false;
             try
             {
+                var entry = _dbContext.TweetDetails.Add(tweet);
+                entry.State = EntityState.Unchanged;
                 _dbContext.TweetDetails.Remove(tweet);
-                List<Comment> comments = await GetCommentsAsync(tweet.Id);
+                List<Reply> comments = await GetAllReplyByTweetIdAsync(tweet.Id);
                 List<Like> likes = await GetTweetLikesAsync(tweet.Id);
-                if (comments != null)
-                    _dbContext.Comments.RemoveRange(comments);
+                if (comments.Any())
+                    _dbContext.Replies.RemoveRange(comments);
 
-                if (likes != null)
+                if (likes.Any())
                     _dbContext.Likes.RemoveRange(likes);
 
                 isTweetDeleted = await SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while deleting tweet!");
+                _logger.LogError("An error occured while deleting tweet!", ex.Message);
             }
             return isTweetDeleted;
         }
@@ -171,75 +177,152 @@
             try
             {
                 List<TweetDetail> tweetDetails = await GetTweetsByUserAsync(username);
-                if(tweetDetails != null && tweetDetails.Count > 0)
+                if(tweetDetails.Any())
                 {
-                    foreach (var tweetId in tweetDetails.Select(i => i.Id))
+                    for(int i = 0; i < tweetDetails.Count; i++)
                     {
-                        List<Comment> comments = await GetCommentsAsync(tweetId);
-                        List<Like> likes = await GetTweetLikesAsync(tweetId);
-                        if (comments != null)
-                            _dbContext.Comments.RemoveRange(comments);
-
-                        if (likes != null)
-                            _dbContext.Likes.RemoveRange(likes);
+                        isTweetDeleted = await DeleteTweetAsync(tweetDetails[i]);   
                     }
-                    _dbContext.TweetDetails.RemoveRange(tweetDetails);
-                    isTweetDeleted = await SaveChangesAsync();
                 }
                 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, $"An error occured while deleting tweet for user: {username}!");
+                _logger.LogError($"An error occured while deleting tweet for user: {username}!", ex.Message);
             }
             return isTweetDeleted;
         }
-
         /// <summary>
-        /// The GetCommentsAsync.
+        /// The GetReplyByIdAsync.
         /// </summary>
-        /// <param name="tweetId">The tweetId<see cref="int"/>.</param>
+        /// <param name="id">The tweetId<see cref="string"/>.</param>
+        /// <returns>The reply</returns>
+        public async Task<Reply> GetReplyByIdAsync(string id)
+        {
+            Reply reply = null;
+            try
+            {
+                reply = await _dbContext.Replies.FirstOrDefaultAsync(i => i.Id == id);
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError( "An error occured while fetching reply by id!", ex.Message);
+            }
+            return reply;
+        }
+        /// <summary>
+        /// The GetAllReplyByTweetIdAsync.
+        /// </summary>
+        /// <param name="tweetId">The tweetId<see cref="string"/>.</param>
         /// <returns>The list of comments</returns>
-        public async Task<List<Comment>> GetCommentsAsync(int tweetId)
+        public async Task<List<Reply>> GetAllReplyByTweetIdAsync(string tweetId)
         {
-            List<Comment> comments = null;
+            List<Reply> replies = null;
             try
             {
-                comments = await _dbContext.Comments.Where(e => e.TweetId == tweetId).ToListAsync();
+                replies = await _dbContext.Replies.Where(e => e.TweetId == tweetId).OrderByDescending(i => i.UpdatedAt).ToListAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while fetching comments by tweet id!");
+                _logger.LogError("An error occured while fetching replies by tweet id!", ex.Message);
             }
-            return comments;
+            return replies;
         }
 
         /// <summary>
-        /// The AddCommentAsync.
+        /// The AddReplyAsync.
         /// </summary>
-        /// <param name="comment">The comment<see cref="Comment"/>.</param>
+        /// <param name="reply">The reply<see cref="Reply"/>.</param>
         /// <returns>true if comment added else false</returns>
-        public async Task<bool> AddCommentAsync(Comment comment)
+        public async Task<bool> AddReplyAsync(Reply reply)
         {
-            bool isCommentAdded = false;
+            bool isReplyAdded = false;
             try
             {
-                await _dbContext.Comments.AddAsync(comment);
-                isCommentAdded = await SaveChangesAsync();
+                await _dbContext.Replies.AddAsync(reply);
+                isReplyAdded = await SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while adding comment!");
+                _logger.LogError("An error occured while adding reply!", ex.Message);
             }
-            return isCommentAdded;
+            return isReplyAdded;
         }
 
+        /// <summary>
+        /// The AddReplyAsync.
+        /// </summary>
+        /// <param name="reply">The reply<see cref="Reply"/>.</param>
+        /// <returns>true if comment added else false</returns>
+        public async Task<bool> UpdateReplyAsync(Reply reply)
+        {
+            bool isReplyAdded = false;
+            try
+            {
+                _dbContext.Replies.Update(reply);
+                isReplyAdded = await SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occured while updating reply!", ex.Message);
+            }
+            return isReplyAdded;
+        }
+
+        /// <summary>
+        /// The AddReplyAsync.
+        /// </summary>
+        /// <param name="reply">The reply<see cref="Reply"/>.</param>
+        /// <returns>true if comment added else false</returns>
+        public async Task<bool> DeleteReplyAsync(Reply reply)
+        {
+            bool isReplyDeleted = false;
+            try
+            {
+                _dbContext.Replies.Remove(reply);
+                isReplyDeleted = await SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occured while removing reply!", ex.Message);
+            }
+            return isReplyDeleted;
+        }
+
+        /// <summary>
+        /// The DeleteReplyAsync.
+        /// </summary>
+        /// <param name="username">The username<see cref="string"/>.</param>
+        /// <returns>true if reply deleted else false</returns>
+        public async Task<bool> DeleteReplyByUsernameAsync(string username)
+        {
+            bool isReplyDeleted = false;
+            try
+            {
+                List<Reply> replies = await _dbContext.Replies.Where(i => i.UserName == username).ToListAsync();
+                if (replies.Any())
+                {
+                    _dbContext.Replies.RemoveRange(replies);
+                    isReplyDeleted = await SaveChangesAsync();
+                }
+                else
+                {
+                    isReplyDeleted = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occured while removing all reply by username {username}!", ex.Message);
+            }
+            return isReplyDeleted;
+        }
         /// <summary>
         /// The GetTweetLikesAsync.
         /// </summary>
-        /// <param name="tweetId">The tweetId<see cref="int"/>.</param>
+        /// <param name="tweetId">The tweetId<see cref="string"/>.</param>
         /// <returns>The list of likes</returns>
-        public async Task<List<Like>> GetTweetLikesAsync(int tweetId)
+        public async Task<List<Like>> GetTweetLikesAsync(string tweetId)
         {
             List<Like> likes = null;
             try
@@ -248,37 +331,18 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while fetching likes by tweet id!");
+                _logger.LogError("An error occured while fetching likes by tweet id!", ex.Message);
             }
             return likes;
         }
 
         /// <summary>
-        /// The GetTotalLikesAsync.
-        /// </summary>
-        /// <param name="tweetId">The tweet id.</param>
-        /// <returns>Total like count.</returns>
-        public async Task<int> GetTotalLikesAsync(int tweetId)
-        {
-            int likesCount = 0;
-            try
-            {
-                likesCount = await _dbContext.Likes.CountAsync(e => e.TweetId == tweetId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, "An error occured while fetching likes count tweet id!");
-            }
-            return likesCount;
-        }
-
-        /// <summary>
         /// The GetLikesByUserNameAsync.
         /// </summary>
-        /// <param name="tweetId">The tweetId<see cref="int"/>.</param>
+        /// <param name="tweetId">The tweetId<see cref="string"/>.</param>
         /// <param name="username">The username<see cref="string"/>.</param>
         /// <returns>The like detail/>.</returns>
-        public async Task<Like> GetLikesByUserNameAsync(int tweetId, string username)
+        public async Task<Like> GetLikesByUserNameAsync(string tweetId, string username)
         {
             Like likeInfo = null;
             try
@@ -287,7 +351,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while fetching likes by user name!");
+                _logger.LogError("An error occured while fetching likes by user name!", ex.Message);
             }
             return likeInfo;
         }
@@ -307,7 +371,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while liking the tweet!");
+                _logger.LogError("An error occured while liking the tweet!", ex.Message);
             }
             return isLikeAdded;
         }
@@ -327,9 +391,37 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while disliking the tweet!");
+                _logger.LogError("An error occured while disliking the tweet!", ex.Message);
             }
             return isUnliked;
+        }
+
+        /// <summary>
+        /// The UnlikeATweetAsync.
+        /// </summary>
+        /// <param name="username">The username<see cref="string"/>.</param>
+        /// <returns>The true if unliked else false</returns>
+        public async Task<bool> DeleteLikeByUsernameAsync(string username)
+        {
+            bool isLikeDeleted = false;
+            try
+            {
+                List<Like> likes = await _dbContext.Likes.Where(i => i.UserName == username).ToListAsync();
+                if (likes.Any())
+                {
+                    _dbContext.Likes.RemoveRange(likes);
+                    isLikeDeleted = await SaveChangesAsync();
+                }
+                else
+                {
+                    isLikeDeleted = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occured while removing all likes by username {username}!", ex.Message);
+            }
+            return isLikeDeleted;
         }
 
         /// <summary>
@@ -345,7 +437,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured while saving the record to db!");
+                _logger.LogError("An error occured while saving the record to db!", ex.Message);
             }
             return isRecordSaved;
         }

@@ -1,56 +1,68 @@
-version: '3.4'
+version: "3.4"
 
 services:
   sqlserver:
-   container_name: sqlserver
-   environment:
-     SA_PASSWORD: "pass@word1"
-     ACCEPT_EULA: "Y"
-   restart: always
-   ports:
-      - "1433:1433"
-   volumes:
-      - sql_data:/data/db
-
-  portainer:
-    container_name: portainer
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "pass@word1"
+      ACCEPT_EULA: "Y"
     restart: always
     ports:
-      - "8080:8000"
-      - "9000:9000"
+      - "1433:1433"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
+      - sql_data:/var/opt/mssql
 
   elasticsearch:
     container_name: elasticsearch
     environment:
-        - xpack.monitoring.enabled=true
-        - xpack.watcher.enabled=false
-        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-        - discovery.type=single-node
+      - xpack.monitoring.enabled=true
+      - xpack.watcher.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
     ports:
-        - "9200:9200"
+      - "9200:9200"
     volumes:
-        - elasticsearch-data:/usr/share/elasticsearch/data
+      - elasticsearch-data:/usr/share/elasticsearch/data
 
   kibana:
     container_name: kibana
     environment:
-        - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
     depends_on:
-        - elasticsearch
+      - elasticsearch
     ports:
-        - "5601:5601"
+      - "5601:5601"
+
+  prometheus:
+    container_name: prometheus
+    volumes:
+      - ./PrometheusConfig/prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+    depends_on:
+      - user.api
+      - tweet.api
+    ports:
+      - "9090:9090"
+
+  grafana:
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
 
   rabbitmq:
-   container_name: rabbitmq
-   ports:
-     - 5672:5672
-     - 15672:15672
-   environment:
-     - RABBITMQ_DEFAULT_USER = guest
-     - RABBITMQ_DEFAULT_PASS = guest 
+    container_name: rabbitmq
+    ports:
+      - "4369:4369"
+      - "5671:5671"
+      - "5672:5672"
+      - "25672:25672"
+      - "15671:15671"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER = guest
+      - RABBITMQ_DEFAULT_PASS = guest
 
   user.api:
     container_name: user.api
@@ -59,13 +71,13 @@ services:
       - "ConnectionStrings:DefaultConnection=Server=sqlserver;Database=UserProfileDB;User Id=sa;Password=pass@word1;"
       - "ElasticConfiguration:Uri=http://elasticsearch:9200"
       - "RabbitMq:HostName=rabbitmq"
-    restart: on-failure
+      - "TZ=Asia/Kolkata"
+    restart: always
     depends_on:
       - sqlserver
       - rabbitmq
     ports:
       - "8001:80"
-    
 
   tweet.api:
     container_name: tweet.api
@@ -74,26 +86,36 @@ services:
       - "ConnectionStrings:DefaultConnection=Server=sqlserver;Database=TweetInfoDB;User Id=sa;Password=pass@word1;"
       - "ElasticConfiguration:Uri=http://elasticsearch:9200"
       - "RabbitMq:HostName=rabbitmq"
+      - "TZ=Asia/Kolkata"
+    restart: always
     depends_on:
       - sqlserver
       - rabbitmq
       - user.api
-    restart: on-failure
     ports:
       - "8002:80"
-
 
   ocelotapigateway:
     container_name: ocelotapigateway
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ElasticConfiguration:Uri=http://elasticsearch:9200"
+      - "TZ=Asia/Kolkata"
+    restart: on-failure
     depends_on:
+      - sqlserver
+      - rabbitmq
       - user.api
       - tweet.api
-      - rabbitmq
-      - sqlserver
-    restart: on-failure
     ports:
       - "8000:80"
 
+  # tweetapp-ui:
+  #   container_name: tweetapp-ui
+  #   stdin_open: true
+  #   restart: on-failure
+  #   depends_on:
+  #     - ocelotapigateway
+  #   ports:
+  #     - "8003:8003"
+  #   command: npm start

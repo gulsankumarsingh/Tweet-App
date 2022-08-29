@@ -5,7 +5,7 @@
     /// <summary>
     /// Defines the <see cref="DeleteUserResultMessage" />.
     /// </summary>
-    public class DeleteUserResultMessage : BaseMessage
+    public class DeleteUserResultMessage
     {
         /// <summary>
         /// Gets or sets the UserName.
