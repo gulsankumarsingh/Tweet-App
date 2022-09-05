@@ -19,13 +19,13 @@ services:
   grafana:
     image: grafana/grafana
 
-  user.api:
+  user-api:
     image: ${DOCKER_REGISTRY-}userapi
     build:
       context: .
       dockerfile: Services/User/User.API/Dockerfile
 
-  tweet.api:
+  tweet-api:
     image: ${DOCKER_REGISTRY-}tweetapi
     build:
       context: .
@@ -37,11 +37,11 @@ services:
       context: .
       dockerfile: ApiGateways/OcelotApiGateway/Dockerfile
 
-  # tweetapp-ui:
-  #   image: ${DOCKER_REGISTRY-}tweetapp-ui
-  #   build:
-  #     context: .
-  #     dockerfile: Presentation/Dockerfile
+  tweetapp-ui:
+    image: ${DOCKER_REGISTRY-}tweetapp-ui
+    build:
+      context: .
+      dockerfile: Presentation/Dockerfile
 
 volumes:
   sql_data:

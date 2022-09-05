@@ -23,6 +23,11 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
+            - name: "ElasticConfiguration:Uri"
+              valueFrom:
+                configMapKeyRef:
+                  name: elasticsearch-configMap
+                  key: elasticsearch_url
           resources:
             requests:
               memory: "64Mi"
@@ -31,7 +36,7 @@ spec:
               memory: "128Mi"
               cpu: "0.3"
       imagePullSecrets:
-        - name: acr-secret
+        - name: acr-secret-user
 ---
 apiVersion: v1
 kind: Service

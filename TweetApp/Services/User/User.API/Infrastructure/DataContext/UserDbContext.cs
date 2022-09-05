@@ -22,14 +22,6 @@
         /// </summary>
         public DbSet<UserProfile> UserProfiles { get; set; }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseCosmos(
-        //        "https://tweetappdb.documents.azure.com:443/",
-        //        "7diiT1soQ0vfOLEDOgB50AtRNpT0ZLmFU3xjPNtWjSGOPO0AqfkrcSpgBwyvFW0Q6EBdGyECXGep6YPaGamzmw==",
-        //        "UserProfileDB");
-        //}
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // configuring UserProfiles

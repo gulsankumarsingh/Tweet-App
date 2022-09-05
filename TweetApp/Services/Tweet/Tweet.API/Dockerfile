@@ -7,7 +7,6 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
 COPY ["Services/Tweet/Tweet.API/Tweet.API.csproj", "Services/Tweet/Tweet.API/"]
-COPY ["BuildingBlocks/PromRequestMiddleware/Common.RequestMiddleware/Common.RequestMiddleware.csproj", "BuildingBlocks/PromRequestMiddleware/Common.RequestMiddleware/"]
 COPY ["BuildingBlocks/Logging/Common.Logging/Common.Logging.csproj", "BuildingBlocks/Logging/Common.Logging/"]
 RUN dotnet restore "Services/Tweet/Tweet.API/Tweet.API.csproj"
 COPY . .

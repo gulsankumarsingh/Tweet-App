@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: processpensionmodule-configmap
-data:
-  processpensionmodule_url: http://processpensionmodule-service

@@ -15,9 +15,6 @@ services:
   elasticsearch:
     container_name: elasticsearch
     environment:
-      - xpack.monitoring.enabled=true
-      - xpack.watcher.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - discovery.type=single-node
     ports:
       - "9200:9200"
@@ -39,15 +36,15 @@ services:
       - ./PrometheusConfig/prometheus.yml:/etc/prometheus/prometheus.yml
     restart: unless-stopped
     depends_on:
-      - user.api
-      - tweet.api
+      - user-api
+      - tweet-api
     ports:
       - "9090:9090"
 
   grafana:
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "3030:3030"
     volumes:
       - grafana_data:/var/lib/grafana
 
@@ -64,8 +61,8 @@ services:
       - RABBITMQ_DEFAULT_USER = guest
       - RABBITMQ_DEFAULT_PASS = guest
 
-  user.api:
-    container_name: user.api
+  user-api:
+    container_name: user-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ConnectionStrings:DefaultConnection=Server=sqlserver;Database=UserProfileDB;User Id=sa;Password=pass@word1;"
@@ -79,8 +76,8 @@ services:
     ports:
       - "8001:80"
 
-  tweet.api:
-    container_name: tweet.api
+  tweet-api:
+    container_name: tweet-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ConnectionStrings:DefaultConnection=Server=sqlserver;Database=TweetInfoDB;User Id=sa;Password=pass@word1;"
@@ -91,7 +88,7 @@ services:
     depends_on:
       - sqlserver
       - rabbitmq
-      - user.api
+      - user-api
     ports:
       - "8002:80"
 
@@ -105,17 +102,17 @@ services:
     depends_on:
       - sqlserver
       - rabbitmq
-      - user.api
-      - tweet.api
+      - user-api
+      - tweet-api
     ports:
       - "8000:80"
 
-  # tweetapp-ui:
-  #   container_name: tweetapp-ui
-  #   stdin_open: true
-  #   restart: on-failure
-  #   depends_on:
-  #     - ocelotapigateway
-  #   ports:
-  #     - "8003:8003"
-  #   command: npm start
+  tweetapp-ui:
+    container_name: tweetapp-ui
+    stdin_open: true
+    restart: on-failure
+    depends_on:
+      - ocelotapigateway
+    ports:
+      - "3000:3000"
+    command: npm start

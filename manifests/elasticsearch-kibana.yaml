@@ -1,0 +1,39 @@
+apiVersion: 2019-12-01
+location: eastus
+name: elasticsearchkibanacontainer
+properties:
+  containers:
+    - name: elasticsearch
+      properties:
+        environmentVariables:
+          - name: "discovery.type"
+            value: "single-node"
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+        resources:
+          requests:
+            cpu: 1
+            memoryInGb: 1.5
+        ports:
+          - port: 9200
+          - port: 9300
+    - name: kibana
+      properties:
+        image: docker.elastic.co/kibana/kibana:7.9.2
+        resources:
+          requests:
+            cpu: 1
+            memoryInGb: 1.5
+        ports:
+          - port: 5601
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+      - protocol: tcp
+        port: 5601
+      - protocol: tcp
+        port: 9200
+      - protocol: tcp
+        port: 9300
+tags: null
+type: Microsoft.ContainerInstance/containerGroups
