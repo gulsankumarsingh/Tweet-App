@@ -34,27 +34,27 @@
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.GetAllTweetsAsync">
             <summary>
-            Method for Get All Tweets
+            Get All Tweets
             </summary>
             <returns>The All tweets.</returns>
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.GetTweetByTweetIdAsync(System.String)">
             <summary>
-            Method for Get Tweets By User name.
+            Get Tweets By id.
             </summary>
             <param name="tweetId">The tweetId.</param>
             <returns>The Tweet by tweet Id.</returns>
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.GetTweetsByUserAsync(System.String)">
             <summary>
-            Method for Get Tweets By User name.
+            Get Tweets By User name.
             </summary>
             <param name="username">The username.</param>
             <returns>The Tweet by username.</returns>
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.AddTweetAsync(System.String,Tweet.API.Models.Dtos.MessageDto)">
             <summary>
-            Method for Adding new Tweet
+            Add a new Tweet
             </summary>
             <param name="username">The username</param>
             <param name="createTweetDto">Tweet message info</param>
@@ -62,7 +62,7 @@
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.UpdateTweetAsync(System.String,System.String,Tweet.API.Models.Dtos.MessageDto)">
             <summary>
-            Method for Updating the Tweet
+            Update a Tweet
             </summary>
             <param name="username">The username</param>
             <param name="tweetId">The tweetId</param>
@@ -71,7 +71,7 @@
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.DeleteTweetAsync(System.String,System.String)">
             <summary>
-            Method for Deleting a Tweet
+            Delete a Tweet
             </summary>
             <param name="username">The username</param>
             <param name="tweetId">The tweetId</param>
@@ -79,7 +79,7 @@
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.LikeTweetAsync(System.String,System.String)">
             <summary>
-            Method for Liking a Tweet
+            Like a Tweet
             </summary>
             <param name="tweetId">The tweetId<see cref="T:System.String"/>.</param>
             <param name="username">The username<see cref="T:System.String"/>.</param>
@@ -87,7 +87,7 @@
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.UnlikeTweetAsync(System.String,System.String)">
             <summary>
-            Method for unlike a tweet
+            Unlike a tweet
             </summary>
             <param name="tweetId">The tweetId</param>
             <param name="username">The username</param>
@@ -95,7 +95,7 @@
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.ReplyToTweetAsync(System.String,System.String,Tweet.API.Models.Dtos.MessageDto)">
             <summary>
-            Method for Reply to a Tweet
+            Add reply
             </summary>
             <param name="tweetId">The tweetId</param>
             <param name="username">The username</param>
@@ -104,7 +104,7 @@
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.UpdateReplyToTweetAsync(System.String,System.String,Tweet.API.Models.Dtos.MessageDto)">
             <summary>
-            Method for Updating the Reply to a Tweet
+            Updating reply
             </summary>
             <param name="replyId">The replyId</param>
             <param name="username">The username</param>
@@ -113,7 +113,7 @@
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.DeleteReplyToTweetAsync(System.String,System.String)">
             <summary>
-            Method for Reply to a Tweet
+            Deleting reply
             </summary>
             <param name="replyId">The replyId</param>
             <param name="username">The username</param>
@@ -121,7 +121,7 @@
         </member>
         <member name="M:Tweet.API.Controllers.TweetsController.GetAllReplyAsync(System.String)">
             <summary>
-            Method for Get All Reply for a tweet
+            Get All Reply for a tweet
             </summary>
             <param name="tweetId">The tweetId</param>
             <returns>The Api response with status and message</returns>

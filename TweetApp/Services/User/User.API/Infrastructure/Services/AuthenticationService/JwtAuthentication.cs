@@ -53,7 +53,7 @@
                     new Claim(ClaimTypes.Name, username)
                 };
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtDetail").GetSection("Key").Value));
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtDetail").GetSection("ApiKey").Value));
                 var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
 
                 var token = new JwtSecurityToken(

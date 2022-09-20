@@ -65,15 +65,10 @@ namespace Tweet.API
 
             services.AddControllers(options => options.Filters.Add(typeof(HttpGlobalExceptionFilter)));
 
-            //Comment below line in case of local run
             services.AddDbContext<TweetDbContext>(options =>
                 options.UseCosmos(Configuration["CosmosConfiguration:CosmosEndPoint"],
                     Configuration["CosmosConfiguration:CosmosKey"],
                     Configuration["CosmosConfiguration:Database"]));
-
-            //Uncomment below line in case of local run
-            //services.AddDbContext<TweetDbContext>(options =>
-            //    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<ITweetRepository, TweetRepository>();
 
@@ -100,7 +95,7 @@ namespace Tweet.API
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetSection("JwtDetail").GetSection("Key").Value)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetSection("JwtDetail").GetSection("ApiKey").Value)),
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidIssuer = Configuration.GetSection("JwtDetail").GetSection("Issuer").Value,
@@ -124,8 +119,10 @@ namespace Tweet.API
             services.AddHostedService<DeleteUserConsumer>();
 
             services.AddHealthChecks()
-                .AddSqlServer(Configuration.GetConnectionString("DefaultConnection"), null, "Sql Server Health Check", HealthStatus.Unhealthy)
-                .AddRabbitMQ($"amqp://{Configuration["RabbitMq:HostName"]}:5672", null, "RabbitMq Health Check", HealthStatus.Unhealthy);
+                .AddAzureServiceBusTopic(Configuration["AzureBusConfiguration:QueueConnectionString"], Configuration["AzureBusConfiguration:TopicName"], "Service Bus Topic Health Check", HealthStatus.Degraded)
+                .AddAzureServiceBusSubscription(Configuration["AzureBusConfiguration:QueueConnectionString"], Configuration["AzureBusConfiguration:TopicName"], Configuration["AzureBusConfiguration:UserDeletedSubscription"], "Service Bus Subscription Health Check", HealthStatus.Degraded)
+                .AddCosmosDb($"AccountEndpoint={Configuration["CosmosConfiguration:CosmosEndPoint"]};AccountKey={Configuration["CosmosConfiguration:CosmosKey"]};", Configuration["CosmosConfiguration:Database"], "Cosmos Db Health Status", HealthStatus.Degraded)
+                .AddElasticsearch(Configuration["ElasticConfiguration:Uri"], "Elastic Search Health Check", HealthStatus.Degraded);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

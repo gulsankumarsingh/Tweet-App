@@ -27,6 +27,8 @@ namespace User.API
     using User.API.Infrastructure.Services.AuthenticationService.Interfaces;
     using User.API.Infrastructure.Services.AzureServiceBusSender;
     using User.API.Infrastructure.Services.AzureServiceBusSender.Interface;
+    using User.API.Infrastructure.Services.ImageHandlerService;
+    using User.API.Infrastructure.Services.ImageHandlerService.Interface;
     using User.API.Infrastructure.Services.MessageSenderService;
     using User.API.Infrastructure.Services.MessageSenderService.Interface;
     using User.API.Models;
@@ -69,19 +71,16 @@ namespace User.API
 
             services.AddControllers(options => options.Filters.Add(typeof(HttpGlobalExceptionFilter)));
 
-            //Comment below line in case of local run
             services.AddDbContext<UserDbContext>(options => 
                 options.UseCosmos(Configuration["CosmosConfiguration:CosmosEndPoint"], 
                     Configuration["CosmosConfiguration:CosmosKey"], 
                     Configuration["CosmosConfiguration:Database"]));
 
-            //Uncomment below line in case of local run
-            //services.AddDbContext<UserDbContext>(options =>
-            //    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IJwtAuthentication, JwtAuthentication>();
-            
+            services.AddScoped<IHandleImage, HandleImage>();
+
             services.AddSingleton<IMessageSender, MessageSender>();
             services.AddSingleton<IDeleteUserMessageSender, DeleteUserMessageSender>();
 
@@ -108,7 +107,7 @@ namespace User.API
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetSection("JwtDetail").GetSection("Key").Value)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetSection("JwtDetail").GetSection("ApiKey").Value)),
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidIssuer = Configuration.GetSection("JwtDetail").GetSection("Issuer").Value,
@@ -129,8 +128,12 @@ namespace User.API
             });
 
             services.AddHealthChecks()
-                .AddSqlServer(Configuration.GetConnectionString("DefaultConnection"), null, "Sql Server Health Check", HealthStatus.Degraded)
-                .AddRabbitMQ($"amqp://{Configuration["RabbitMq:HostName"]}:5672", null, "RabbitMq Health Check", HealthStatus.Degraded);
+                .AddAzureServiceBusTopic(Configuration["AzureBusConfiguration:QueueConnectionString"],
+                        Configuration["AzureBusConfiguration:TopicName"], "Service Bus Topic Health Check", HealthStatus.Degraded)
+                .AddCosmosDb($"AccountEndpoint={Configuration["CosmosConfiguration:CosmosEndPoint"]};AccountKey={Configuration["CosmosConfiguration:CosmosKey"]};",
+                        Configuration["CosmosConfiguration:Database"], "Cosmos Db Health Status", HealthStatus.Unhealthy)
+                .AddElasticsearch(Configuration["ElasticConfiguration:Uri"], "Elastic Search Health Check", HealthStatus.Degraded);
+        
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -148,7 +151,6 @@ namespace User.API
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "UserService.API v1"));
 
-            //app.UseMetricServer();
             app.UseRouting();
             app.UseHttpMetrics();
 

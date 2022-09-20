@@ -7,12 +7,12 @@
     using Microsoft.Extensions.Logging;
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Threading.Tasks;
     using User.API.Infrastructure.ActionResults;
     using User.API.Infrastructure.Repository.Interface;
     using User.API.Infrastructure.Services.AuthenticationService.Interfaces;
     using User.API.Infrastructure.Services.AzureServiceBusSender.Interface;
+    using User.API.Infrastructure.Services.ImageHandlerService.Interface;
     using User.API.Infrastructure.Services.MessageSenderService.Interface;
     using User.API.Models;
     using User.API.Models.Dtos;
@@ -47,6 +47,7 @@
         private readonly IMessageSender _messageSender;
 
         private readonly IDeleteUserMessageSender _deleteUserMessageSender;
+        private readonly IHandleImage _handleImage;
 
         /// <summary>
         /// Defines the _mapper.
@@ -63,7 +64,7 @@
         /// <param name="messageSender">The messageSender.</param>
         /// <param name="deleteUserMessageSender">The deleteUserMessageSender.</param>
         public UsersController(IUserRepository userRepository, ILogger<UsersController> logger, 
-                IMapper mapper, IJwtAuthentication jwtAuthentication, IMessageSender messageSender, IDeleteUserMessageSender deleteUserMessageSender)
+                IMapper mapper, IJwtAuthentication jwtAuthentication, IMessageSender messageSender, IDeleteUserMessageSender deleteUserMessageSender, IHandleImage handleImage)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _jwtAuthentication = jwtAuthentication ?? throw new ArgumentNullException(nameof(jwtAuthentication));
@@ -71,10 +72,11 @@
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
             _deleteUserMessageSender = deleteUserMessageSender ?? throw new ArgumentNullException(nameof(deleteUserMessageSender));
+            _handleImage = handleImage ?? throw new ArgumentNullException(nameof(handleImage));
         }
 
         /// <summary>
-        /// Method for the get All Users information.
+        /// Get All Users
         /// </summary>
         /// <returns>The ApiResponse with status and message/>.</returns>
         [Route("all")]
@@ -102,7 +104,7 @@
         }
 
         /// <summary>
-        /// Method for Get the User info.
+        /// Get a user
         /// </summary>
         /// <param name="username">The username</param>
         /// <returns>The ApiResponse with status and message/>.</returns>
@@ -118,7 +120,7 @@
             {
                 _logger.LogInformation("GetUserAsync method started...");
                 ApiResponse response;
-                UserProfile userProfile = await _userRepository.GetUserByUserNameAsync(username);
+                UserProfile userProfile = await _userRepository.GetUserByUserNameAsync(username.ToLower());
 
                 if (userProfile == null)
                 {
@@ -139,62 +141,53 @@
                     ResponseValue = userProfileDto
                 };
                 return Ok(response);
-            }catch(Exception ex)
+            }
+            catch(Exception ex)
             {
-                _logger.LogError($"An error occured while getting the User detail for user: {username}", ex.Message);
+                _logger.LogError($"An error occured while getting the User detail by username: {username}", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
             
         }
 
         /// <summary>
-        /// Method for searching the user by username
+        /// Search a user
         /// </summary>
         /// <param name="username">The username</param>
         /// <returns>The ApiResponse with status and message/>.</returns>
         [Route("search/{username}")]
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserDto>))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ApiResponse>> SearchByUserNameAsync([FromRoute] string username)
+        public async Task<ActionResult<List<UserDto>>> SearchByUserNameAsync([FromRoute] string username)
         {
             try
             {
                 _logger.LogInformation("SearchByUserNameAsync method started...");
-                ApiResponse response;
+
                 List<UserProfile> userProfile = await _userRepository.SearchUserAsync(username);
 
                 if (userProfile != null && userProfile.Count == 0)
                 {
-                    response = new ApiResponse
-                    {
-                        Status = "Error",
-                        Message = "User not found!"
-                    };
-
-                    return NotFound(response);
+                    return Ok(new List<UserDto>());
                 }
 
                 List<UserDto> userProfileDtos = _mapper.Map<List<UserDto>>(userProfile);
-                response = new ApiResponse
-                {
-                    Status = "Success",
-                    Message = "User Found",
-                    ResponseValue = userProfileDtos
-                };
-                return Ok(response);
-            }catch(Exception ex)
+
+                return Ok(userProfileDtos);
+            }
+            catch(Exception ex)
             {
-                _logger.LogError($"An error occured while getting the User by username: {username}", ex.Message);
+                _logger.LogError($"An error occured while searching the User by username: {username}", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
             
         }
 
         /// <summary>
-        /// Method for login the user
+        /// Login
         /// </summary>
         /// <param name="user">The user login model</param>
         /// <returns>The ApiResponse with status and message/>.</returns>
@@ -221,27 +214,34 @@
                     });
                 }
                 userProfile.IsActive = true;
-                await _userRepository.UpdateUsersAsync(userProfile);
-                TokenDetail tokenDetail = _jwtAuthentication.GenerateToken(userProfile.Username);
-                ApiResponse response = new ApiResponse
+                bool isSuccess = await _userRepository.UpdateUsersAsync(userProfile);
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Login Successful",
-                    ResponseValue = tokenDetail
-                };
-                return Ok(response);
+                    TokenDetail tokenDetail = _jwtAuthentication.GenerateToken(userProfile.Username);
+                    ApiResponse response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Login Successful",
+                        ResponseValue = tokenDetail
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }  
             }
             catch (Exception ex)
             {
 
-                _logger.LogError($"An error occured while login the by username {user.Email}", ex.Message);
+                _logger.LogError($"An error occured while login the by user: {user.Email}", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
            
         }
 
         /// <summary>
-        /// Method for logout the user
+        /// Logout
         /// </summary>
         /// <param name="username">The username</param>
         /// <returns>The ApiResponse with status and message/>.</returns>
@@ -258,18 +258,25 @@
                 _logger.LogInformation("LogoutAsync method started...");
 
                 ApiResponse response;
-                UserProfile userProfile = await _userRepository.GetUserByUserNameAsync(username);
+                UserProfile userProfile = await _userRepository.GetUserByUserNameAsync(username.ToLower());
 
                 userProfile.IsActive = false;
                 userProfile.LogoutAt = DateTime.Now;
-                await _userRepository.UpdateUsersAsync(userProfile);
-
-                response = new ApiResponse
+                bool isSuccess = await _userRepository.UpdateUsersAsync(userProfile);
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Logout Successful",
-                };
-                return Ok(response);
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Logout Successful",
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
+                
             }
             catch (Exception ex)
             {
@@ -280,7 +287,7 @@
         }
 
         /// <summary>
-        /// The Register a new user
+        /// Register new user
         /// </summary>
         /// <param name="createUserProfileDto">The model for create a new user data</param>
         /// <returns>The ApiResponse with status and message/>.</returns>
@@ -296,8 +303,8 @@
             {
                 _logger.LogInformation("RegisterAsync method started...");
                 ApiResponse response;
-                bool isUserExist = await _userRepository.IsEmailExistAsync(createUserProfileDto.Email.ToLower());
-                if (isUserExist)
+                UserProfile user = await _userRepository.GetUserByEmailAsync(createUserProfileDto.Email.ToLower());
+                if (user != null)
                 {
                     response = new ApiResponse
                     {
@@ -307,8 +314,8 @@
                     return BadRequest(response);
                 }
 
-                bool isUsernameTaken = await _userRepository.IsUserNameExistAsync(createUserProfileDto.Username);
-                if (isUsernameTaken)
+                user = await _userRepository.GetUserByUserNameAsync(createUserProfileDto.Username.ToLower());
+                if (user != null)
                 {
                     response = new ApiResponse
                     {
@@ -320,14 +327,23 @@
 
                 UserProfile addUserProfile = _mapper.Map<UserProfile>(createUserProfileDto);
                 addUserProfile.Email = addUserProfile.Email.ToLower();
-                await _userRepository.AddUserAsync(addUserProfile);
-                response = new ApiResponse
+                addUserProfile.Username = addUserProfile.Username.ToLower();
+                bool isSuccess = await _userRepository.AddUserAsync(addUserProfile);
+
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Sign up successful",
-                    ResponseValue = null
-                };
-                 return Ok(response);
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Sign up successful",
+                        ResponseValue = null
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
             }
             catch (Exception ex)
             {
@@ -339,7 +355,7 @@
         }
 
         /// <summary>
-        /// Method for updating the user information
+        /// Update user profile
         /// </summary>
         /// <param name="username">The username</param>
         /// <param name="updateUserProfileDto">The model for update user info data</param>
@@ -357,7 +373,8 @@
             {
                 _logger.LogInformation("UpdateProfileAsync method started...");
                 ApiResponse response;
-                UserProfile userProfile = await _userRepository.GetUserByUserNameAsync(username);
+
+                UserProfile userProfile = await _userRepository.GetUserByUserNameAsync(username.ToLower());
                 if (userProfile == null)
                 {
                     response = new ApiResponse
@@ -368,12 +385,20 @@
 
                     return NotFound(response);
                 }
+                string uniqueImageName = string.IsNullOrEmpty(userProfile.ImageName) ? Guid.NewGuid().ToString() : userProfile.ImageName;
 
-                if(updateUserProfileDto.ImageFile != null)
+                if (updateUserProfileDto.ImageFile != null)
                 {
-                    using MemoryStream ms = new MemoryStream();
-                    updateUserProfileDto.ImageFile.CopyTo(ms);
-                    updateUserProfileDto.ProfileImage = $"data:{updateUserProfileDto.ImageFile.ContentType};base64," + Convert.ToBase64String(ms.ToArray());
+                    ImageUploaderResponse uploaderResponse = await _handleImage.UploadImageAsync(updateUserProfileDto.ImageFile, uniqueImageName);
+                    if (!uploaderResponse.isUploaded)
+                    {
+                        return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                    }
+                    else
+                    {
+                        userProfile.ProfileImage = string.IsNullOrEmpty(uploaderResponse.ImageUrl) ? "" : uploaderResponse.ImageUrl;
+                        userProfile.ImageName = uniqueImageName;
+                    }
                 }
 
                 userProfile.ContactNumber = updateUserProfileDto.ContactNumber;
@@ -381,18 +406,24 @@
                 userProfile.Email = updateUserProfileDto.Email.ToLower();
                 userProfile.FirstName = updateUserProfileDto.FirstName;
                 userProfile.LastName = updateUserProfileDto.LastName;
-                userProfile.ProfileImage = updateUserProfileDto.ProfileImage;
                 userProfile.Gender = updateUserProfileDto.Gender;
                 userProfile.Status = updateUserProfileDto.Status;
 
-                await _userRepository.UpdateUsersAsync(userProfile);
-                response = new ApiResponse
+                bool isSuccess = await _userRepository.UpdateUsersAsync(userProfile);
+
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Profile updated successfully."
-                };
-                return Ok(response);
-               
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Profile updated successfully."
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
             }
             catch (Exception ex)
             {
@@ -404,7 +435,7 @@
         }
 
         /// <summary>
-        /// Method for updating the user information
+        /// Delete user profile
         /// </summary>
         /// <param name="username">The username</param>
         /// <returns>The ApiResponse with status and message/>.</returns>
@@ -421,7 +452,7 @@
             {
                 _logger.LogInformation("DeleteProfileAsync method started...");
                 ApiResponse response;
-                UserProfile profile = await _userRepository.GetUserByUserNameAsync(username);
+                UserProfile profile = await _userRepository.GetUserByUserNameAsync(username.ToLower());
                 if (profile == null)
                 {
                     _logger.LogError("User not found", profile);
@@ -434,13 +465,25 @@
                     return NotFound(response);
                 }
 
-                await _userRepository.DeleteUsersAsync(profile);
+                if(!string.IsNullOrEmpty(profile.ImageName) && !string.IsNullOrEmpty(profile.ProfileImage))
+                {
+                    bool isImageDeleted = await _handleImage.DeleteImageFileAsync(profile.ImageName);
+                    if (!isImageDeleted)
+                    {
+                        return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                    }
+                }
+                
+                bool isUserDeleted = await _userRepository.DeleteUsersAsync(profile);
 
-                _logger.LogInformation($"User: {username} profile deleted successfully.");
+                if (!isUserDeleted)
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
 
                 DeleteUserResultMessage deleteUserResultMessage = new DeleteUserResultMessage
                 {
-                    UserName = username
+                    UserName = username.ToLower()
                 };
                 //Rabbit Mq sender 
                 //Uncomment in case of local run
@@ -466,7 +509,7 @@
         }
 
         /// <summary>
-        /// Method for reset password using forgot password functionality
+        /// Forgot password
         /// </summary>
         /// <param name="username">The username</param>
         /// <param name="changePassword">The model with change password essentials.</param>
@@ -485,7 +528,7 @@
             {
                 _logger.LogInformation("ForgotPasswordAsync method started...");
                 ApiResponse response;
-                UserProfile userProfile = await _userRepository.GetUserByUserNameAsync(username);
+                UserProfile userProfile = await _userRepository.GetUserByUserNameAsync(username.ToLower());
 
                 if (userProfile == null || userProfile.Email != changePassword.Email.ToLower() || userProfile.ContactNumber != changePassword.ContactNumber)
                 {
@@ -498,14 +541,21 @@
                 }
 
                 userProfile.Password = changePassword.Password;
-                await _userRepository.ChangePasswordAsync(userProfile);
+                bool isSuccess = await _userRepository.ChangePasswordAsync(userProfile);
 
-                response = new ApiResponse
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Password updated successfully",
-                };
-                return Ok(response);
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Password updated successfully",
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
             }
             catch (Exception ex)
             {
@@ -517,7 +567,7 @@
         }
 
         /// <summary>
-        /// The ResetPasswordAsync.
+        /// Reset Password.
         /// </summary>
         /// <param name="username">username</param>
         /// <param name="resetPasswordDto">resetPasswordDto</param>
@@ -535,7 +585,7 @@
             {
                 _logger.LogInformation("ResetPasswordAsync method started...");
                 ApiResponse response;
-                UserProfile userProfile = await _userRepository.GetUserByUserNameAsync(username);
+                UserProfile userProfile = await _userRepository.GetUserByUserNameAsync(username.ToLower());
 
                 if (userProfile == null)
                 {
@@ -557,14 +607,22 @@
                 }
 
                 userProfile.Password = resetPasswordDto.NewPassword;
-                await _userRepository.ChangePasswordAsync(userProfile);
+                bool isSuccess = await _userRepository.ChangePasswordAsync(userProfile);
 
-                response = new ApiResponse
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Password updated successfully",
-                };
-                return Ok(response);
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Password updated successfully",
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
+         
             }
             catch (Exception ex)
             {

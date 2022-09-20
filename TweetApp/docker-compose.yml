@@ -1,8 +1,6 @@
 version: "3.4"
 
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2019-latest
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
@@ -44,7 +42,6 @@ services:
       dockerfile: Presentation/Dockerfile
 
 volumes:
-  sql_data:
   elasticsearch-data:
   prometheus_data: {}
   grafana_data: {}

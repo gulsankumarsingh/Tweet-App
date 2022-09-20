@@ -51,7 +51,7 @@
         }
 
         /// <summary>
-        /// Method for Get All Tweets
+        /// Get All Tweets
         /// </summary>
         /// <returns>The All tweets.</returns>
         [Route("all")]
@@ -88,7 +88,7 @@
         }
 
         /// <summary>
-        /// Method for Get Tweets By User name.
+        /// Get Tweets By id.
         /// </summary>
         /// <param name="tweetId">The tweetId.</param>
         /// <returns>The Tweet by tweet Id.</returns>
@@ -118,15 +118,14 @@
             }
             catch (Exception ex)
             {
-
-                _logger.LogError($"An error occured while getting tweet for id: {tweetId}", ex.Message);
+                _logger.LogError($"An error occured while getting tweet by id: {tweetId}", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
            
         }
 
         /// <summary>
-        /// Method for Get Tweets By User name.
+        /// Get Tweets By User name.
         /// </summary>
         /// <param name="username">The username.</param>
         /// <returns>The Tweet by username.</returns>
@@ -158,14 +157,14 @@
             catch (Exception ex)
             {
 
-                _logger.LogError($"An error occured while getting tweet by username for user: {username}", ex.Message);
+                _logger.LogError($"An error occured while getting tweet by username : {username}", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
             
         }
 
         /// <summary>
-        /// Method for Adding new Tweet
+        /// Add a new Tweet
         /// </summary>
         /// <param name="username">The username</param>
         /// <param name="createTweetDto">Tweet message info</param>
@@ -187,27 +186,32 @@
                     UserName = username,
                     Message = createTweetDto.Message
                 };
-                await _tweetRepository.AddTweetAsync(tweetDetail);
-
-                _logger.LogInformation($"Tweet added successfully", tweetDetail);
-                response = new ApiResponse
+                
+                bool isSuccess = await _tweetRepository.AddTweetAsync(tweetDetail);
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Tweet post Successful"
-                };
-                return Ok(response);
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Tweet post Successful"
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
             }
             catch (Exception ex)
             {
-
-                _logger.LogError($"An error occured while adding the tweet for user: {username}", ex.Message);
+                _logger.LogError($"An error occured while adding the tweet by user: {username}", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
             
         }
 
         /// <summary>
-        /// Method for Updating the Tweet
+        /// Update a Tweet
         /// </summary>
         /// <param name="username">The username</param>
         /// <param name="tweetId">The tweetId</param>
@@ -253,27 +257,32 @@
                 tweet.Message = messageDto.Message;
                 tweet.UpdatedAt = DateTime.Now;
 
-                await _tweetRepository.UpdateTweetAsync(tweet);
+                bool isSuccess = await _tweetRepository.UpdateTweetAsync(tweet);
 
-                _logger.LogInformation("Tweet updated successfully.", tweet);
-                response = new ApiResponse
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Tweet update Successful"
-                };
-                return Ok(response); 
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Tweet update Successful"
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
             }
             catch (Exception ex)
             {
-
-                _logger.LogError($"An error occured while updating the tweet for user: {username} by id: {tweetId}", ex.Message);
+                _logger.LogError($"An error occured while updating the tweet id: {tweetId} by user: {username}", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
             
         }
 
         /// <summary>
-        /// Method for Deleting a Tweet
+        /// Delete a Tweet
         /// </summary>
         /// <param name="username">The username</param>
         /// <param name="tweetId">The tweetId</param>
@@ -314,27 +323,31 @@
                     return Unauthorized(response);
                 }
 
-                await _tweetRepository.DeleteTweetAsync(tweet);
-
-                _logger.LogInformation($"{username} deleted tweet with tweet id : {tweet.Id}");
-                response = new ApiResponse
+                bool isSuccess = await _tweetRepository.DeleteTweetAsync(tweet);
+                
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Tweet deleted Successful"
-                };
-                return Ok(response);
-         
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Tweet deleted Successful"
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occured while deleting the tweet for user: {username} by id: {tweetId}", ex.Message);
+                _logger.LogError($"An error occured while deleting the tweet id: {tweetId} by user: {username}", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
-
         }
 
         /// <summary>
-        /// Method for Liking a Tweet
+        /// Like a Tweet
         /// </summary>
         /// <param name="tweetId">The tweetId<see cref="string"/>.</param>
         /// <param name="username">The username<see cref="string"/>.</param>
@@ -369,19 +382,26 @@
                     TweetId = tweetId,
                     UserName = username
                 };
-                await _tweetRepository.LikeATweetAsync(likeTweet);
+                bool isSuccess = await _tweetRepository.LikeATweetAsync(likeTweet);
 
-                _logger.LogInformation($"Tweet liked successfully for tweet id : {tweet.Id} by user : {username}.");
-                response = new ApiResponse
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Tweet liked successful"
-                };
-                return Ok(response); 
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Tweet liked successful"
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
+
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occured while liking the tweet for user: {username} by id: {tweetId}", ex.Message);
+                _logger.LogError($"An error occured while liking the tweet id: {tweetId} by user: {username} ", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
             
@@ -389,7 +409,7 @@
         }
 
         /// <summary>
-        /// Method for unlike a tweet
+        /// Unlike a tweet
         /// </summary>
         /// <param name="tweetId">The tweetId</param>
         /// <param name="username">The username</param>
@@ -419,28 +439,32 @@
                     return NotFound(response);
                 }
 
-                await _tweetRepository.UnlikeATweetAsync(disLike);
+                bool isSuccess = await _tweetRepository.UnlikeATweetAsync(disLike);
 
-                _logger.LogInformation($"Unlike operation successful for tweet id: {tweetId} by user: {username}");
-                response = new ApiResponse
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Tweet dislike successful."
-                };
-                return Ok(response);
-     
-                
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Tweet dislike successful."
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occured while unliking the tweet for user: {username} by id: {tweetId}", ex.Message);
+                _logger.LogError($"An error occured while unliking the tweet id: {tweetId} by user: {username} ", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
 
         }
 
         /// <summary>
-        /// Method for Reply to a Tweet
+        /// Add reply
         /// </summary>
         /// <param name="tweetId">The tweetId</param>
         /// <param name="username">The username</param>
@@ -478,26 +502,32 @@
                     Message = messgaeDto.Message,
                     UserName = username
                 };
-                await _tweetRepository.AddReplyAsync(comment);
+                bool isSuccess = await _tweetRepository.AddReplyAsync(comment);
 
-                _logger.LogInformation($"Added reply for tweet id: {tweetId} by user: {username}");
-                response = new ApiResponse
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Comment Added"
-                };
-                return Ok(response); 
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Comment Added"
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occured while adding the reply for the tweet for user: {username} by id: {tweetId}", ex.Message);
+                _logger.LogError($"An error occured while adding the reply for the tweet id: {tweetId} by user: {username}", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
             
         }
 
         /// <summary>
-        /// Method for Updating the Reply to a Tweet
+        /// Updating reply
         /// </summary>
         /// <param name="replyId">The replyId</param>
         /// <param name="username">The username</param>
@@ -531,27 +561,32 @@
                 }
                 reply.Message = messageDto.Message;
                 reply.UpdatedAt = DateTime.Now;
-                await _tweetRepository.UpdateReplyAsync(reply);
+                bool isSuccess = await _tweetRepository.UpdateReplyAsync(reply);
 
-                _logger.LogInformation($"Updated reply for reply id: {replyId} by user: {username}");
-                response = new ApiResponse
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Reply Updated"
-                };
-                return Ok(response);
-           
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Reply Updated"
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occured while updating the reply for the tweet for user: {username} by id: {replyId}", ex.Message);
+                _logger.LogError($"An error occured while updating the reply for reply id: {replyId} by user: {username} ", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
             
         }
 
         /// <summary>
-        /// Method for Reply to a Tweet
+        /// Deleting reply
         /// </summary>
         /// <param name="replyId">The replyId</param>
         /// <param name="username">The username</param>
@@ -581,26 +616,32 @@
 
                     return NotFound(response);
                 }
-                await _tweetRepository.DeleteReplyAsync(reply);
+                bool isSuccess = await _tweetRepository.DeleteReplyAsync(reply);
 
-                _logger.LogInformation($"Deleted reply for reply id: {replyId} by user: {username}");
-                response = new ApiResponse
+                if (isSuccess)
                 {
-                    Status = "Success",
-                    Message = "Reply Deleted"
-                };
-                return Ok(response);
+                    response = new ApiResponse
+                    {
+                        Status = "Success",
+                        Message = "Reply Deleted"
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occured while deleting the reply for the tweet for user: {username} by id: {replyId}", ex.Message);
+                _logger.LogError($"An error occured while deleting the reply for reply id: {replyId} by user: {username} ", ex.Message);
                 return new InternalServerErrorObjectResult(new ApiResponse() { Status = "Error", Message = "Something went wrong! Please try again." });
             }
             
         }
 
         /// <summary>
-        /// Method for Get All Reply for a tweet
+        /// Get All Reply for a tweet
         /// </summary>
         /// <param name="tweetId">The tweetId</param>
         /// <returns>The Api response with status and message</returns>

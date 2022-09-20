@@ -112,46 +112,6 @@
             return user;
         }
 
-        
-
-        /// <summary>
-        /// Method for Check if User Exist
-        /// </summary>
-        /// <param name="email">The email<see cref="string"/>.</param>
-        /// <returns>The true if user exist else false.</returns>
-        public async Task<bool> IsEmailExistAsync(string email)
-        {
-            bool isUserExist = false;
-            try
-            {
-                isUserExist = await _dbContext.UserProfiles.AnyAsync(e => e.Email == email);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("An error occured while checking user exist or not!", ex.Message);
-            }
-            return isUserExist;
-        }
-
-        /// <summary>
-        /// Method for Check if User Name Exist
-        /// </summary>
-        /// <param name="userName">The userName<see cref="string"/>.</param>
-        /// <returns>The true if user exist else false.</returns>
-        public async Task<bool> IsUserNameExistAsync(string userName)
-        {
-            bool isUserExist = false;
-            try
-            {
-                isUserExist = await _dbContext.UserProfiles.AnyAsync(e => e.Username == userName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("An error occured while checking user exist or not!", ex.Message);
-            }
-            return isUserExist;
-        }
-
         /// <summary>
         /// Method for Verify User Info
         /// </summary>

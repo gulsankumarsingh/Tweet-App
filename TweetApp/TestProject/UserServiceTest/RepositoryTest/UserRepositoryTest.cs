@@ -115,69 +115,6 @@ namespace UserServiceTest.RepositoryTest
         }
 
         [Test]
-        public async Task IsEmailExistAsync_TrueIfExist_UserExistInRepo()
-        {
-            //Arrange
-            string mockEmail = "gulsan@gmail.com";
-            using var context = new UserDbContext(_dbContextOptions);
-
-            //Act
-            var result = await _userRepository.IsEmailExistAsync(mockEmail);
-
-            Assert.IsNotNull(_userRepository);
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<bool>(result);
-            Assert.AreEqual(true, result);
-        }
-
-        [Test]
-        public async Task IsEmailExistAsync_ShouldReturnFalse_UserNotExistInRepo()
-        {
-            //Arrange
-            string mockEmail = "ajith@gmail.com";
-            using var context = new UserDbContext(_dbContextOptions);
-
-            //Act
-            var result = await _userRepository.IsEmailExistAsync(mockEmail);
-
-            Assert.IsNotNull(_userRepository);
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<bool>(result);
-            Assert.AreEqual(false, result);
-        }
-        [Test]
-        public async Task IsUserNameExistAsync_TrueIfExist_UserExistInRepo()
-        {
-            //Arrange
-            string mockUsername = "Gulsan";
-            using var context = new UserDbContext(_dbContextOptions);
-
-            //Act
-            var result = await _userRepository.IsUserNameExistAsync(mockUsername);
-
-            Assert.IsNotNull(_userRepository);
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<bool>(result);
-            Assert.AreEqual(true, result);
-        }
-
-        [Test]
-        public async Task IsUserNameExistAsync__ShouldReturnFalse_UserNotExistInRepo()
-        {
-            //Arrange
-            string mockUsername = "Abcd";
-            using var context = new UserDbContext(_dbContextOptions);
-
-            //Act
-            var result = await _userRepository.IsUserNameExistAsync(mockUsername);
-
-            Assert.IsNotNull(_userRepository);
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<bool>(result);
-            Assert.AreEqual(false, result);
-        }
-
-        [Test]
         public async Task VerifyUserAsync_UserProfile_UserExistInRepo()
         {
             //Arrange

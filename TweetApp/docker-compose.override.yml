@@ -1,20 +1,13 @@
 version: "3.4"
 
 services:
-  sqlserver:
-    container_name: sqlserver
-    environment:
-      SA_PASSWORD: "pass@word1"
-      ACCEPT_EULA: "Y"
-    restart: always
-    ports:
-      - "1433:1433"
-    volumes:
-      - sql_data:/var/opt/mssql
 
   elasticsearch:
     container_name: elasticsearch
     environment:
+      - xpack.monitoring.enabled=true
+      - xpack.watcher.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - discovery.type=single-node
     ports:
       - "9200:9200"
@@ -65,13 +58,11 @@ services:
     container_name: user-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - "ConnectionStrings:DefaultConnection=Server=sqlserver;Database=UserProfileDB;User Id=sa;Password=pass@word1;"
       - "ElasticConfiguration:Uri=http://elasticsearch:9200"
       - "RabbitMq:HostName=rabbitmq"
       - "TZ=Asia/Kolkata"
     restart: always
     depends_on:
-      - sqlserver
       - rabbitmq
     ports:
       - "8001:80"
@@ -80,13 +71,11 @@ services:
     container_name: tweet-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - "ConnectionStrings:DefaultConnection=Server=sqlserver;Database=TweetInfoDB;User Id=sa;Password=pass@word1;"
       - "ElasticConfiguration:Uri=http://elasticsearch:9200"
       - "RabbitMq:HostName=rabbitmq"
       - "TZ=Asia/Kolkata"
     restart: always
     depends_on:
-      - sqlserver
       - rabbitmq
       - user-api
     ports:
@@ -100,7 +89,6 @@ services:
       - "TZ=Asia/Kolkata"
     restart: on-failure
     depends_on:
-      - sqlserver
       - rabbitmq
       - user-api
       - tweet-api

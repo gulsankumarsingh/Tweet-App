@@ -34,7 +34,7 @@
             Defines the _mapper.
             </summary>
         </member>
-        <member name="M:UserService.API.Controllers.UsersController.#ctor(User.API.Infrastructure.Repository.Interface.IUserRepository,Microsoft.Extensions.Logging.ILogger{UserService.API.Controllers.UsersController},AutoMapper.IMapper,User.API.Infrastructure.Services.AuthenticationService.Interfaces.IJwtAuthentication,User.API.Infrastructure.Services.MessageSenderService.Interface.IMessageSender,User.API.Infrastructure.Services.AzureServiceBusSender.Interface.IDeleteUserMessageSender)">
+        <member name="M:UserService.API.Controllers.UsersController.#ctor(User.API.Infrastructure.Repository.Interface.IUserRepository,Microsoft.Extensions.Logging.ILogger{UserService.API.Controllers.UsersController},AutoMapper.IMapper,User.API.Infrastructure.Services.AuthenticationService.Interfaces.IJwtAuthentication,User.API.Infrastructure.Services.MessageSenderService.Interface.IMessageSender,User.API.Infrastructure.Services.AzureServiceBusSender.Interface.IDeleteUserMessageSender,User.API.Infrastructure.Services.ImageHandlerService.Interface.IHandleImage)">
             <summary>
             Initializes a new instance of the <see cref="T:UserService.API.Controllers.UsersController"/> class.
             </summary>
@@ -47,48 +47,48 @@
         </member>
         <member name="M:UserService.API.Controllers.UsersController.GetAllUsersAsync">
             <summary>
-            Method for the get All Users information.
+            Get All Users
             </summary>
             <returns>The ApiResponse with status and message/>.</returns>
         </member>
         <member name="M:UserService.API.Controllers.UsersController.GetUserAsync(System.String)">
             <summary>
-            Method for Get the User info.
+            Get a user
             </summary>
             <param name="username">The username</param>
             <returns>The ApiResponse with status and message/>.</returns>
         </member>
         <member name="M:UserService.API.Controllers.UsersController.SearchByUserNameAsync(System.String)">
             <summary>
-            Method for searching the user by username
+            Search a user
             </summary>
             <param name="username">The username</param>
             <returns>The ApiResponse with status and message/>.</returns>
         </member>
         <member name="M:UserService.API.Controllers.UsersController.LoginAsync(User.API.Models.UserLoginModel)">
             <summary>
-            Method for login the user
+            Login
             </summary>
             <param name="user">The user login model</param>
             <returns>The ApiResponse with status and message/>.</returns>
         </member>
         <member name="M:UserService.API.Controllers.UsersController.LogoutAsync(System.String)">
             <summary>
-            Method for logout the user
+            Logout
             </summary>
             <param name="username">The username</param>
             <returns>The ApiResponse with status and message/>.</returns>
         </member>
         <member name="M:UserService.API.Controllers.UsersController.RegisterAsync(User.API.Models.Dtos.CreateUserProfileDto)">
             <summary>
-            The Register a new user
+            Register new user
             </summary>
             <param name="createUserProfileDto">The model for create a new user data</param>
             <returns>The ApiResponse with status and message/>.</returns>
         </member>
         <member name="M:UserService.API.Controllers.UsersController.UpdateProfileAsync(System.String,User.API.Models.Dtos.UpdateUserProfileDto)">
             <summary>
-            Method for updating the user information
+            Update user profile
             </summary>
             <param name="username">The username</param>
             <param name="updateUserProfileDto">The model for update user info data</param>
@@ -96,14 +96,14 @@
         </member>
         <member name="M:UserService.API.Controllers.UsersController.DeleteProfileAsync(System.String)">
             <summary>
-            Method for updating the user information
+            Delete user profile
             </summary>
             <param name="username">The username</param>
             <returns>The ApiResponse with status and message/>.</returns>
         </member>
         <member name="M:UserService.API.Controllers.UsersController.ForgotPasswordAsync(System.String,User.API.Models.Dtos.ChangePasswordDto)">
             <summary>
-            Method for reset password using forgot password functionality
+            Forgot password
             </summary>
             <param name="username">The username</param>
             <param name="changePassword">The model with change password essentials.</param>
@@ -111,7 +111,7 @@
         </member>
         <member name="M:UserService.API.Controllers.UsersController.ResetPasswordAsync(System.String,User.API.Models.Dtos.ResetPasswordDto)">
             <summary>
-            The ResetPasswordAsync.
+            Reset Password.
             </summary>
             <param name="username">username</param>
             <param name="resetPasswordDto">resetPasswordDto</param>
@@ -281,20 +281,6 @@
             <param name="userName">The userName<see cref="T:System.String"/>.</param>
             <returns>The list of user profiles</returns>
         </member>
-        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.IsEmailExistAsync(System.String)">
-            <summary>
-            The IsUserExistAsync.
-            </summary>
-            <param name="email">The email<see cref="T:System.String"/>.</param>
-            <returns>The true if user exist else false.</returns>
-        </member>
-        <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.IsUserNameExistAsync(System.String)">
-            <summary>
-            The IsUserNameExistAsync.
-            </summary>
-            <param name="userName">The userName<see cref="T:System.String"/>.</param>
-            <returns>true if user exist else false.</returns>
-        </member>
         <member name="M:User.API.Infrastructure.Repository.Interface.IUserRepository.AddUserAsync(User.API.Models.UserProfile)">
             <summary>
             The AddUserAsync.
@@ -385,20 +371,6 @@
             </summary>
             <param name="userName">The userName<see cref="T:System.String"/>.</param>
             <returns>The list of user profiles</returns>
-        </member>
-        <member name="M:User.API.Infrastructure.Repository.UserRepository.IsEmailExistAsync(System.String)">
-            <summary>
-            Method for Check if User Exist
-            </summary>
-            <param name="email">The email<see cref="T:System.String"/>.</param>
-            <returns>The true if user exist else false.</returns>
-        </member>
-        <member name="M:User.API.Infrastructure.Repository.UserRepository.IsUserNameExistAsync(System.String)">
-            <summary>
-            Method for Check if User Name Exist
-            </summary>
-            <param name="userName">The userName<see cref="T:System.String"/>.</param>
-            <returns>The true if user exist else false.</returns>
         </member>
         <member name="M:User.API.Infrastructure.Repository.UserRepository.VerifyUserAsync(System.String,System.String)">
             <summary>
@@ -909,6 +881,11 @@
             </summary>
         </member>
         <member name="P:User.API.Models.UserProfile.ProfileImage">
+            <summary>
+            Gets or sets the ProfileImg.
+            </summary>
+        </member>
+        <member name="P:User.API.Models.UserProfile.ImageName">
             <summary>
             Gets or sets the ProfileImg.
             </summary>

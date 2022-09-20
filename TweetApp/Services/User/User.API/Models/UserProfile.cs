@@ -65,12 +65,16 @@
         /// <summary>
         /// Gets or sets the LogoutAt.
         /// </summary>
-        public DateTime LogoutAt { get; set; }
+        public DateTime LogoutAt { get; set; } = DateTime.Now;
 
         /// <summary>
         /// Gets or sets the ProfileImg.
         /// </summary>
         public string ProfileImage { get; set; }
+        /// <summary>
+        /// Gets or sets the ProfileImg.
+        /// </summary>
+        public string ImageName { get; set; }
 
         /// <summary>
         /// Gets or sets the Status.

@@ -37,20 +37,6 @@
         Task<List<UserProfile>> SearchUserAsync(string userName);
 
         /// <summary>
-        /// The IsUserExistAsync.
-        /// </summary>
-        /// <param name="email">The email<see cref="string"/>.</param>
-        /// <returns>The true if user exist else false.</returns>
-        Task<bool> IsEmailExistAsync(string email);
-
-        /// <summary>
-        /// The IsUserNameExistAsync.
-        /// </summary>
-        /// <param name="userName">The userName<see cref="string"/>.</param>
-        /// <returns>true if user exist else false.</returns>
-        Task<bool> IsUserNameExistAsync(string userName);
-
-        /// <summary>
         /// The AddUserAsync.
         /// </summary>
         /// <param name="user">The user<see cref="UserProfile"/>.</param>

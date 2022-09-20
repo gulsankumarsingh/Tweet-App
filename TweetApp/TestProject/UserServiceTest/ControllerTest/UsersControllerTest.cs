@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using User.API.Infrastructure.Repository.Interface;
 using User.API.Infrastructure.Services.AuthenticationService.Interfaces;
 using User.API.Infrastructure.Services.AzureServiceBusSender.Interface;
+using User.API.Infrastructure.Services.ImageHandlerService.Interface;
 using User.API.Infrastructure.Services.MessageSenderService.Interface;
 using User.API.Models;
 using User.API.Models.Dtos;
@@ -25,6 +26,7 @@ namespace UserServiceTest.ControllerTest
         private readonly Mock<IJwtAuthentication> _jwtAuthenticationMock;
         private readonly Mock<IMessageSender> _messageSenderMock;
         private readonly Mock<IDeleteUserMessageSender> _deleteUserMessageSenderMock;
+        private readonly Mock<IHandleImage> _handleImageMock;
         private readonly IMapper _mapper;
         private readonly UsersController _usersController;
      
@@ -35,11 +37,14 @@ namespace UserServiceTest.ControllerTest
             _jwtAuthenticationMock = new Mock<IJwtAuthentication>();
             _messageSenderMock = new Mock<IMessageSender>();
             _deleteUserMessageSenderMock = new Mock<IDeleteUserMessageSender>();
+            _handleImageMock = new Mock<IHandleImage>();
             if (_mapper == null)
             {
                 _mapper = UserServiceConfiguration.GetAutoMapperConfiguration();
             }
-            _usersController = new UsersController(_userRepositoryMock.Object, _loggerMock.Object, _mapper, _jwtAuthenticationMock.Object, _messageSenderMock.Object, _deleteUserMessageSenderMock.Object);
+            _usersController = new UsersController(_userRepositoryMock.Object, _loggerMock.Object, _mapper, 
+                                _jwtAuthenticationMock.Object, _messageSenderMock.Object, 
+                                _deleteUserMessageSenderMock.Object, _handleImageMock.Object);
         }
 
         [Test]
@@ -65,7 +70,7 @@ namespace UserServiceTest.ControllerTest
         public async Task GetUserAsync_ApiResponse_UsernameExistInRepo()
         {
             //Arrange
-            string fakeName = "Gulsan";
+            string fakeName = "gulsan";
             _userRepositoryMock.Setup(i => i.GetUserByUserNameAsync(fakeName)).ReturnsAsync(GetListOfUserProfiles().Find(i => i.Username == fakeName));
 
             //Act
@@ -110,52 +115,50 @@ namespace UserServiceTest.ControllerTest
         public async Task SearchByUsernameAsync_ApiResponse_UsernameExistInRepo()
         {
             //Arrange
-            string fakeName = "Sou";
-            _userRepositoryMock.Setup(i => i.SearchUserAsync(fakeName)).ReturnsAsync(GetListOfUserProfiles().FindAll(i => i.Username.Contains(fakeName)));
-
+            string fakeName = "sou";
+            var list = GetListOfUserProfiles().FindAll(i => i.Username.Contains(fakeName));
+            _userRepositoryMock.Setup(i => i.SearchUserAsync(fakeName)).ReturnsAsync(list);
             //Act
             var actionResult = await _usersController.SearchByUserNameAsync(fakeName);
             var result = actionResult.Result as OkObjectResult;
-            var value = result.Value as ApiResponse;
+            var value = result.Value as List<UserDto>;
 
 
             //Assert
             Assert.IsNotNull(_usersController);
             Assert.IsNotNull(actionResult);
             Assert.IsInstanceOf<OkObjectResult>(result);
-            Assert.IsInstanceOf<ApiResponse>(value);
-            Assert.AreEqual("Success", value.Status);
-            Assert.IsNotNull(value.ResponseValue);
-            Assert.IsInstanceOf<List<UserDto>>(value.ResponseValue);
+            Assert.IsInstanceOf<List<UserDto>>(value);
+            Assert.AreEqual(list.Count, value.Count);
 
         }
 
         [Test]
-        public async Task SearchByUsernameAsync_shouldReturnNotFound_UsernameNotExistInRepo()
+        public async Task SearchByUsernameAsync_shouldReturnEmptyObject_UsernameNotExistInRepo()
         {
             //Arrange
-            string fakeName = "Ajit";
-            _userRepositoryMock.Setup(i => i.SearchUserAsync(fakeName)).ReturnsAsync(GetListOfUserProfiles().FindAll(i => i.Username.Contains(fakeName)));
+            string fakeName = "ajit";
+            var list = GetListOfUserProfiles().FindAll(i => i.Username.Contains(fakeName));
+            _userRepositoryMock.Setup(i => i.SearchUserAsync(fakeName)).ReturnsAsync(list);
 
             //Act
             var actionResult = await _usersController.SearchByUserNameAsync(fakeName);
-            var result = actionResult.Result as NotFoundObjectResult;
-            var value = result.Value as ApiResponse;
+            var result = actionResult.Result as OkObjectResult;
+            var value = result.Value as List<UserDto>;
 
 
             //Assert
             Assert.IsNotNull(_usersController);
             Assert.IsNotNull(actionResult);
-            Assert.IsInstanceOf<NotFoundObjectResult>(result);
-            Assert.IsInstanceOf<ApiResponse>(value);
-            Assert.AreEqual("Error", value.Status);
-            Assert.IsNull(value.ResponseValue);
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            Assert.IsInstanceOf<List<UserDto>>(value);
+            Assert.AreEqual(0, value.Count);
         }
         [Test]
         public async Task LoginAsync_ApiResponse_ValidInfoEntered()
         {
             //Arrange
-            string fakeName = "Gulsan";
+            string fakeName = "gulsan";
             UserLoginModel fakeModel = new UserLoginModel
             {
                 Email = "gulsan@gmail.com",
@@ -163,6 +166,7 @@ namespace UserServiceTest.ControllerTest
             };
             UserProfile userProfile = GetListOfUserProfiles().Find(i => i.Email == fakeModel.Email && i.Password == fakeModel.Password);
             _userRepositoryMock.Setup(i => i.VerifyUserAsync(fakeModel.Email, fakeModel.Password)).ReturnsAsync(userProfile);
+            _userRepositoryMock.Setup(i => i.UpdateUsersAsync(userProfile)).ReturnsAsync(true);
             _jwtAuthenticationMock.Setup(i => i.GenerateToken(fakeName)).Returns(new TokenDetail()
             {
                 Username = fakeName,
@@ -193,7 +197,7 @@ namespace UserServiceTest.ControllerTest
             //Arrange
             UserLoginModel fakeModel = new UserLoginModel
             {
-                Email = "Ajit@gmail.com",
+                Email = "ajit@gmail.com",
                 Password = "Ajit@123"
             };
             _userRepositoryMock.Setup(i => i.VerifyUserAsync(fakeModel.Email, fakeModel.Password)).ReturnsAsync(GetListOfUserProfiles().Find(i => i.Email == fakeModel.Email && i.Password == fakeModel.Password));
@@ -245,7 +249,7 @@ namespace UserServiceTest.ControllerTest
         public async Task LogoutAsync_ApiResponse_Success()
         {
             //Arrange
-            string fakeName = "Gulsan";
+            string fakeName = "gulsan";
             var userProfile = GetListOfUserProfiles().Find(i => i.Username == fakeName);
             userProfile.IsActive = false;
             userProfile.LogoutAt = DateTime.Now;
@@ -272,7 +276,7 @@ namespace UserServiceTest.ControllerTest
             //Arrange
             CreateUserProfileDto createUserProfile = new CreateUserProfileDto()
             {
-                Username = "Soni",
+                Username = "soni",
                 Email = "soni@gmail.com",
                 FirstName = "Soni",
                 LastName = "Singh",
@@ -281,8 +285,8 @@ namespace UserServiceTest.ControllerTest
                 Password = "Soni@123",
                 ContactNumber = 8776567894,
             };
-            _userRepositoryMock.Setup(i => i.IsEmailExistAsync(createUserProfile.Email)).ReturnsAsync(false);
-            _userRepositoryMock.Setup(i => i.IsUserNameExistAsync(createUserProfile.Username)).ReturnsAsync(false);
+            _userRepositoryMock.Setup(i => i.GetUserByEmailAsync(createUserProfile.Email)).ReturnsAsync((UserProfile)null);
+            _userRepositoryMock.Setup(i => i.GetUserByUserNameAsync(createUserProfile.Username)).ReturnsAsync((UserProfile)null);
             _userRepositoryMock.Setup(i => i.AddUserAsync(It.IsAny<UserProfile>())).ReturnsAsync(true);
 
             //Act
@@ -305,7 +309,7 @@ namespace UserServiceTest.ControllerTest
             //Arrange
             CreateUserProfileDto createUserProfile = new CreateUserProfileDto()
             {
-                Username = "Anil_deb",
+                Username = "anil_deb",
                 Email = "anil@gmail.com",
                 FirstName = "Anil",
                 LastName = "Debata",
@@ -314,7 +318,8 @@ namespace UserServiceTest.ControllerTest
                 Password = "Anil@12345",
                 ContactNumber = 7679987899,
             };
-            _userRepositoryMock.Setup(i => i.IsEmailExistAsync(createUserProfile.Email)).ReturnsAsync(true);
+            UserProfile user = GetListOfUserProfiles().Find(i => i.Email == createUserProfile.Email.ToLower());
+            _userRepositoryMock.Setup(i => i.GetUserByEmailAsync(createUserProfile.Email)).ReturnsAsync(user);
 
             //Act
             var actionResult = await _usersController.RegisterAsync(createUserProfile);
@@ -337,16 +342,17 @@ namespace UserServiceTest.ControllerTest
             //Arrange
             CreateUserProfileDto createUserProfile = new CreateUserProfileDto()
             {
-                Username = "Neha",
-                Email = "neha123@gmail.com",
-                FirstName = "Neha",
+                Username = "gulsan",
+                Email = "gulsan123@gmail.com",
+                FirstName = "Gulsan",
                 LastName = "Sharma",
-                Gender = "Female",
+                Gender = "Male",
                 DateOfBirth = new DateTime(1995, 1, 2),
                 Password = "Sharma@123",
                 ContactNumber = 8887777989,
             };
-            _userRepositoryMock.Setup(i => i.IsUserNameExistAsync(createUserProfile.Username)).ReturnsAsync(true);
+            UserProfile user = GetListOfUserProfiles().Find(i => i.Username.ToLower() == createUserProfile.Username.ToLower());
+            _userRepositoryMock.Setup(i => i.GetUserByUserNameAsync(createUserProfile.Username)).ReturnsAsync(user);
 
 
             //Act
@@ -368,7 +374,7 @@ namespace UserServiceTest.ControllerTest
         public async Task UpdateProfileAsync_ApiResponse_ValidInput()
         {
             //Arrange
-            string fakeUsername = "Sourav";
+            string fakeUsername = "sourav";
             UpdateUserProfileDto updateUserProfile = new UpdateUserProfileDto()
             {
                 Email = "sourav@gmail.com",
@@ -378,7 +384,8 @@ namespace UserServiceTest.ControllerTest
                 DateOfBirth = new DateTime(1997, 10, 16),
                 ContactNumber = 7678787966,
             };
-            _userRepositoryMock.Setup(i => i.IsUserNameExistAsync(fakeUsername)).ReturnsAsync(true);
+            UserProfile user = GetListOfUserProfiles().Find(i => i.Username.ToLower() == fakeUsername.ToLower());
+            _userRepositoryMock.Setup(i => i.GetUserByUserNameAsync(fakeUsername)).ReturnsAsync(user);
             _userRepositoryMock.Setup(i => i.UpdateUsersAsync(It.IsAny<UserProfile>())).ReturnsAsync(true);
 
             //Act
@@ -400,7 +407,7 @@ namespace UserServiceTest.ControllerTest
         public async Task UpdateProfileAsync_shouldReturnNotFound_UsernameNotExist()
         {
             //Arrange
-            string fakeUsername = "Ajit";
+            string fakeUsername = "ajit";
             UpdateUserProfileDto updateUserProfile = new UpdateUserProfileDto()
             {
                 Email = "ajit@gmail.com",
@@ -410,7 +417,7 @@ namespace UserServiceTest.ControllerTest
                 DateOfBirth = new DateTime(1997, 10, 16),
                 ContactNumber = 7678787966,
             };
-            _userRepositoryMock.Setup(i => i.IsUserNameExistAsync(fakeUsername)).ReturnsAsync(false);
+            _userRepositoryMock.Setup(i => i.GetUserByUserNameAsync(fakeUsername)).ReturnsAsync((UserProfile)null);
 
             //Act
             var actionResult = await _usersController.UpdateProfileAsync(fakeUsername, updateUserProfile);
@@ -431,11 +438,13 @@ namespace UserServiceTest.ControllerTest
         public async Task DeleteProfileAsync_ApiResponse_UsernameExist()
         {
             //Arrange
-            string fakeUsername = "Pooja";
+            string fakeUsername = "pooja";
+            string fileName = "abc.png";
 
             UserProfile userProfile = GetListOfUserProfiles().Find(i => i.Username == fakeUsername);
             _userRepositoryMock.Setup(i => i.GetUserByUserNameAsync(fakeUsername)).ReturnsAsync(userProfile);
             _userRepositoryMock.Setup(i => i.DeleteUsersAsync(userProfile)).ReturnsAsync(true);
+            _handleImageMock.Setup(i => i.DeleteImageFileAsync(fileName)).ReturnsAsync(true);
 
             //Act
             var actionResult = await _usersController.DeleteProfileAsync(fakeUsername);
@@ -479,7 +488,7 @@ namespace UserServiceTest.ControllerTest
         public async Task ForgotPasswordAsync_ApiResponse_ValidInput()
         {
             //Arrange
-            string fakeUsername = "Sanjana";
+            string fakeUsername = "sanjana";
             ChangePasswordDto passwordDto = new ChangePasswordDto
             {
                 Email = "sanjana@gmail.com",
@@ -542,7 +551,7 @@ namespace UserServiceTest.ControllerTest
         public async Task ForgotPasswordAsync_shouldReturnNotFound_InvalidEmailEntered()
         {
             //Arrange
-            string fakeUsername = "Anil";
+            string fakeUsername = "anil";
             ChangePasswordDto passwordDto = new ChangePasswordDto
             {
                 Email = "anil12@gmail.com",
@@ -573,7 +582,7 @@ namespace UserServiceTest.ControllerTest
         public async Task ForgotPasswordAsync_shouldReturnNotFound_InvalidContactNumberEntered()
         {
             //Arrange
-            string fakeUsername = "Anil";
+            string fakeUsername = "anil";
             ChangePasswordDto passwordDto = new ChangePasswordDto
             {
                 Email = "anil@gmail.com",
@@ -604,7 +613,7 @@ namespace UserServiceTest.ControllerTest
         public async Task ResetPasswordAsync_ApiResponse_ValidInput()
         {
             //Arrange
-            string fakeUsername = "Gulsan";
+            string fakeUsername = "gulsan";
             ResetPasswordDto passwordDto = new ResetPasswordDto
             {
                 OldPassword = "Gulsan@123",
@@ -634,7 +643,7 @@ namespace UserServiceTest.ControllerTest
         public async Task ResetPasswordAsync_shouldReturnNotFound_UserNotExist()
         {
             //Arrange
-            string fakeUsername = "Gulsan123";
+            string fakeUsername = "gulsan123";
             ResetPasswordDto passwordDto = new ResetPasswordDto
             {
                 OldPassword = "Gulsan@123",
@@ -663,7 +672,7 @@ namespace UserServiceTest.ControllerTest
         public async Task ResetPasswordAsync_shouldReturnNotFound_IncorrectOldPassword()
         {
             //Arrange
-            string fakeUsername = "Sourav";
+            string fakeUsername = "sourav";
             ResetPasswordDto passwordDto = new ResetPasswordDto
             {
                 OldPassword = "Password@123",
@@ -694,7 +703,7 @@ namespace UserServiceTest.ControllerTest
             {
                 new UserProfile()
                 {
-                    Username= "Gulsan",
+                    Username= "gulsan",
                     Email="gulsan@gmail.com",
                     FirstName="Gulsan",
                     LastName="Singh",
@@ -705,7 +714,7 @@ namespace UserServiceTest.ControllerTest
                 },
                 new UserProfile()
                 {
-                    Username= "Sourav",
+                    Username= "sourav",
                     Email="sourav@gmail.com",
                     FirstName="Sourav",
                     LastName="Singh",
@@ -716,7 +725,7 @@ namespace UserServiceTest.ControllerTest
                 },
                 new UserProfile()
                 {
-                    Username= "Anil",
+                    Username= "anil",
                     Email="anil@gmail.com",
                     FirstName="Anil",
                     LastName="Debata",
@@ -727,7 +736,7 @@ namespace UserServiceTest.ControllerTest
                 },
                 new UserProfile()
                 {
-                    Username= "Pooja",
+                    Username= "pooja",
                     Email="pooja@gmail.com",
                     FirstName="Pooja",
                     LastName="Roy",
@@ -735,10 +744,12 @@ namespace UserServiceTest.ControllerTest
                     DateOfBirth= new DateTime(1991, 05, 25),
                     Password="Pooja@123",
                     ContactNumber=6789234324,
+                    ProfileImage = "http//somewhere/abc.png",
+                    ImageName="abc.png"
                 },
                 new UserProfile()
                 {
-                    Username= "Sanjana",
+                    Username= "sanjana",
                     Email="sanjana@gmail.com",
                     FirstName="Sanjana",
                     LastName="Prasad",
