@@ -73,7 +73,6 @@
             }
             catch (Exception ex)
             {
-
                 _logger.LogError("An error occured while generating the JWT token", ex.Message);
             }
             return tokenDetail;
